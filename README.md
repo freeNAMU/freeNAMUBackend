@@ -1,3 +1,3 @@
-# freeNAMU
+# freeNAMUBackend
 
-An alternative wiki engine that supports namuwiki's namumark based on Spring Boot
+freeNAMUBackend is a backend of freeNAMU based on Spring Boot
