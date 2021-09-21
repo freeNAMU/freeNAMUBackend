@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.github.freeNAMU</groupId>
-    <artifactId>backend</artifactId>
+    <artifactId>freeNAMUBackend</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>backend</name>
-    <description>backend</description>
+    <name>freeNAMUBackend</name>
+    <description>An alternative wiki engine that supports namuwiki's namumark based on Spring Boot</description>
     <properties>
         <java.version>11</java.version>
     </properties>
