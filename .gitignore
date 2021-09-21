@@ -1,4 +1,4 @@
 /.idea/
-/freeNAMUBackend.iml
-/src/main/resources/application.properties
 /target
+/freeNAMUBackend.iml
+/test.mv.db
