@@ -15,7 +15,7 @@ public class DocumentController {
     @Autowired
     private DocumentService documentService;
 
-    @GetMapping("/document/{documentName}/latest")
+    @GetMapping("/document/{documentName}/latest/raw")
     public ResponseEntity<Content> getLatestDocument(@PathVariable String documentName) {
         Content latestDocument = documentService.getLatestDocument(documentName);
         if (latestDocument == null) {
@@ -25,7 +25,7 @@ public class DocumentController {
         }
     }
 
-    @GetMapping("/document/{documentName}/{revisionIndex}")
+    @GetMapping("/document/{documentName}/{revisionIndex}/raw")
     public ResponseEntity<Content> getDocument(@PathVariable String documentName, @PathVariable int revisionIndex) {
         Content document = documentService.getDocumentByRevisionIndex(documentName, revisionIndex);
         if (document == null) {
