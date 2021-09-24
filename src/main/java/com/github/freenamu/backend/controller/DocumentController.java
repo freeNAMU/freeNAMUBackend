@@ -46,8 +46,8 @@ public class DocumentController {
     }
 
     @PostMapping("/document/{documentName}")
-    public ResponseEntity<Void> PostDocument(@PathVariable String documentName, @RequestParam String contentBody, HttpServletRequest request) {
-        documentService.postDocument(documentName, contentBody, request.getRemoteAddr());
+    public ResponseEntity<Void> PostDocument(@PathVariable String documentName, @RequestParam String contentBody, @RequestParam(defaultValue = "") String comment, HttpServletRequest request) {
+        documentService.postDocument(documentName, contentBody, comment, request.getRemoteAddr());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

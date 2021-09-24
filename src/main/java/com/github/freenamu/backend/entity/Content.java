@@ -19,6 +19,10 @@ public class Content {
     @Lob
     private String contentBody;
 
+    @Column
+    @Lob
+    private String comment;
+
     public Long getContentId() {
         return contentId;
     }
@@ -41,5 +45,17 @@ public class Content {
 
     public void setContentBody(String contentBody) {
         this.contentBody = contentBody;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        if (comment.length() <= 255) {
+            this.comment = comment;
+        } else {
+            throw new IllegalArgumentException("too long comment");
+        }
     }
 }
