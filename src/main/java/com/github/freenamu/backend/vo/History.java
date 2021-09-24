@@ -2,6 +2,7 @@ package com.github.freenamu.backend.vo;
 
 import com.github.freenamu.backend.entity.Content;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,6 +27,8 @@ public class History {
         row.setRevisionIndex(getNextRevisionIndex());
         row.setComment(content.getComment());
         row.setContributor(content.getContributor());
+        row.setCreateDate(content.getCreateDate());
+        row.setLength(content.getContentBody().length());
         rows.add(row);
     }
 
@@ -33,6 +36,8 @@ public class History {
         private int revisionIndex;
         private String comment;
         private String contributor;
+        private LocalDateTime createDate;
+        private int length;
 
         public int getRevisionIndex() {
             return revisionIndex;
@@ -56,6 +61,22 @@ public class History {
 
         public void setContributor(String contributor) {
             this.contributor = contributor;
+        }
+
+        public LocalDateTime getCreateDate() {
+            return createDate;
+        }
+
+        public void setCreateDate(LocalDateTime createDate) {
+            this.createDate = createDate;
+        }
+
+        public int getLength() {
+            return length;
+        }
+
+        public void setLength(int length) {
+            this.length = length;
         }
     }
 }

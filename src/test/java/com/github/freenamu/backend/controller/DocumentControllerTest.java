@@ -182,6 +182,7 @@ class DocumentControllerTest {
             resultActions.andExpect(jsonPath("rows[" + i + "].revisionIndex").value(expectedRow.getRevisionIndex()));
             resultActions.andExpect(jsonPath("rows[" + i + "].comment").value(expectedRow.getComment()));
             resultActions.andExpect(jsonPath("rows[" + i + "].contributor").value(expectedRow.getContributor()));
+            resultActions.andExpect(jsonPath("rows[" + i + "].length").value(expectedRow.getLength()));
         }
     }
 
