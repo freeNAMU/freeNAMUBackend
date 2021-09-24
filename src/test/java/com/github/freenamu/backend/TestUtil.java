@@ -86,6 +86,7 @@ public class TestUtil {
             assertEquals(expectedHistoryRow.getRevisionIndex(), actualHistoryRow.getRevisionIndex());
             assertEquals(expectedHistoryRow.getComment(), actualHistoryRow.getComment());
             assertEquals(expectedHistoryRow.getContributor(), actualHistoryRow.getContributor());
+            assertEquals(expectedHistoryRow.getLength(), actualHistoryRow.getLength());
         }
     }
 }

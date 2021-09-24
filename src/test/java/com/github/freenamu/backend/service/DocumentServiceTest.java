@@ -9,10 +9,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static com.github.freenamu.backend.TestUtil.*;
+import static com.github.freenamu.backend.vo.History.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
@@ -220,13 +223,18 @@ public class DocumentServiceTest {
         String documentName = getRandomString();
         int size = 100;
         History expected = new History();
-        for (int i = 0; i < size; i++) {
+        for (int i = 1; i <= size; i++) {
             String contentBody = getRandomString();
             String comment = getRandomString();
             String contributor = getRandomString();
             documentService.postDocument(documentName, contentBody, comment, contributor);
             documentService.postDocument("not", "include", "this", "document");
-            expected.add(getExpectedContent(contentBody, comment, contributor));
+            Row row = new Row();
+            row.setRevisionIndex(i);
+            row.setComment(comment);
+            row.setContributor(contributor);
+            row.setLength(contentBody.length());
+            expected.getRows().add(row);
         }
 
         // When
