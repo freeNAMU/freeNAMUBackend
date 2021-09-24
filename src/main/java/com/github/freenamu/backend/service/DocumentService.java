@@ -59,7 +59,7 @@ public class DocumentService {
         return null;
     }
 
-    public List<Content> getRevisionsOfDocument(String documentName) {
+    public List<Content> getHistoryOfDocument(String documentName) {
         Optional<Document> optionalDocument = documentRepository.findById(documentName);
         if (optionalDocument.isPresent()) {
             Document document = optionalDocument.get();

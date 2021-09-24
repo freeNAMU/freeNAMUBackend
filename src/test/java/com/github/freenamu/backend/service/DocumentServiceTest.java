@@ -180,7 +180,7 @@ public class DocumentServiceTest {
     }
 
     @Test
-    public void getRevisionsOfDocument() {
+    public void getHistoryOfDocument() {
         // Given
         String documentName = "test name";
         String contributor = "127.0.0.1";
@@ -194,7 +194,7 @@ public class DocumentServiceTest {
         }
 
         // When
-        List<Content> actual = documentService.getRevisionsOfDocument(documentName);
+        List<Content> actual = documentService.getHistoryOfDocument(documentName);
 
         // Then
         for (int i = 0; i < size; i++) {
@@ -207,12 +207,12 @@ public class DocumentServiceTest {
     }
 
     @Test
-    public void returnNullIfDocumentIsNotExistWhenGetRevisionsOfDocument() {
+    public void returnNullIfDocumentIsNotExistWhenGetHistoryOfDocument() {
         // Given
         String documentName = "test name";
 
         // When
-        List<Content> actual = documentService.getRevisionsOfDocument(documentName);
+        List<Content> actual = documentService.getHistoryOfDocument(documentName);
 
         // Then
         assertNull(actual);

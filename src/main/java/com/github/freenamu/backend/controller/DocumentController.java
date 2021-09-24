@@ -35,13 +35,13 @@ public class DocumentController {
         }
     }
 
-    @GetMapping("/document/{documentName}/revisions")
-    public ResponseEntity<List<Content>> getRevisionsOfDocument(@PathVariable String documentName) {
-        List<Content> revisionsOfDocument = documentService.getRevisionsOfDocument(documentName);
-        if (revisionsOfDocument == null) {
+    @GetMapping("/document/{documentName}/history")
+    public ResponseEntity<List<Content>> getHistoryOfDocument(@PathVariable String documentName) {
+        List<Content> historyOfDocument = documentService.getHistoryOfDocument(documentName);
+        if (historyOfDocument == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } else {
-            return new ResponseEntity<>(revisionsOfDocument, HttpStatus.OK);
+            return new ResponseEntity<>(historyOfDocument, HttpStatus.OK);
         }
     }
 
