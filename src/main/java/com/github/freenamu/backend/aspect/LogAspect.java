@@ -30,11 +30,12 @@ public class LogAspect {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
-        Object result = joinPoint.proceed();
-
-        stopWatch.stop();
-        logger.info(getMethodName(joinPoint) + getParameters(joinPoint) + " " + stopWatch.getTotalTimeMillis() + "ms");
-        return result;
+        try {
+            return joinPoint.proceed();
+        } finally {
+            stopWatch.stop();
+            logger.info(getMethodName(joinPoint) + getParameters(joinPoint) + " " + stopWatch.getTotalTimeMillis() + "ms");
+        }
     }
 
     private String getMethodName(JoinPoint joinPoint) {
