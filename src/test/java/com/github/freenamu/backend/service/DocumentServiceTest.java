@@ -3,13 +3,13 @@ package com.github.freenamu.backend.service;
 import com.github.freenamu.backend.entity.Content;
 import com.github.freenamu.backend.entity.Document;
 import com.github.freenamu.backend.repository.DocumentRepository;
+import com.github.freenamu.backend.vo.History;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 import static com.github.freenamu.backend.TestUtil.*;
@@ -219,21 +219,21 @@ public class DocumentServiceTest {
         // Given
         String documentName = getRandomString();
         int size = 100;
-        ArrayList<Content> expected = new ArrayList<>();
+        History expected = new History();
         for (int i = 0; i < size; i++) {
             String contentBody = getRandomString();
             String comment = getRandomString();
             String contributor = getRandomString();
             documentService.postDocument(documentName, contentBody, comment, contributor);
             documentService.postDocument("not", "include", "this", "document");
-            expected.add(getExpectedContent(null, comment, contributor));
+            expected.add(getExpectedContent(contentBody, comment, contributor));
         }
 
         // When
-        List<Content> actual = documentService.getHistoryOfDocument(documentName);
+        History actual = documentService.getHistoryOfDocument(documentName);
 
         // Then
-        assertRevisionsEquals(expected, actual);
+        assertHistoryEquals(expected, actual);
     }
 
     @Test
@@ -242,7 +242,7 @@ public class DocumentServiceTest {
         String documentName = getRandomString();
 
         // When
-        List<Content> actual = documentService.getHistoryOfDocument(documentName);
+        History actual = documentService.getHistoryOfDocument(documentName);
 
         // Then
         assertNull(actual);

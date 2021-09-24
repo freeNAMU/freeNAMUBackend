@@ -3,12 +3,11 @@ package com.github.freenamu.backend.service;
 import com.github.freenamu.backend.entity.Content;
 import com.github.freenamu.backend.entity.Document;
 import com.github.freenamu.backend.repository.DocumentRepository;
+import com.github.freenamu.backend.vo.History;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -18,9 +17,6 @@ import java.util.Optional;
 public class DocumentService {
     @Autowired
     private DocumentRepository documentRepository;
-
-    @PersistenceContext
-    private EntityManager entityManager;
 
     public void postDocument(String documentName, String contentBody, String comment, String contributor) throws IllegalArgumentException {
         Optional<Document> optionalDocument = documentRepository.findById(documentName);
@@ -62,17 +58,17 @@ public class DocumentService {
         return null;
     }
 
-    public List<Content> getHistoryOfDocument(String documentName) {
+    public History getHistoryOfDocument(String documentName) {
         Optional<Document> optionalDocument = documentRepository.findById(documentName);
         if (optionalDocument.isPresent()) {
             Document document = optionalDocument.get();
             List<Content> revisions = document.getRevisions();
             revisions.sort(Comparator.comparing(Content::getContentId));
+            History result = new History();
             for (Content content : revisions) {
-                entityManager.detach(content);
-                content.setContentBody(null);
+                result.add(content);
             }
-            return revisions;
+            return result;
         }
         return null;
     }

@@ -2,13 +2,13 @@ package com.github.freenamu.backend.controller;
 
 import com.github.freenamu.backend.entity.Content;
 import com.github.freenamu.backend.service.DocumentService;
+import com.github.freenamu.backend.vo.History;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.List;
 
 @RestController
 public class DocumentController {
@@ -36,12 +36,12 @@ public class DocumentController {
     }
 
     @GetMapping("/document/{documentName}/history")
-    public ResponseEntity<List<Content>> getHistoryOfDocument(@PathVariable String documentName) {
-        List<Content> contentList = documentService.getHistoryOfDocument(documentName);
-        if (contentList == null) {
+    public ResponseEntity<History> getHistoryOfDocument(@PathVariable String documentName) {
+        History history = documentService.getHistoryOfDocument(documentName);
+        if (history == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } else {
-            return new ResponseEntity<>(contentList, HttpStatus.OK);
+            return new ResponseEntity<>(history, HttpStatus.OK);
         }
     }
 
