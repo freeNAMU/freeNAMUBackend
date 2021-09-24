@@ -20,7 +20,7 @@ public class DocumentService {
     @PersistenceContext
     private EntityManager entityManager;
 
-    public void postDocument(String documentName, String documentBody, String contributor) {
+    public void postDocument(String documentName, String contentBody, String comment, String contributor) throws IllegalArgumentException {
         Optional<Document> optionalDocument = documentRepository.findById(documentName);
         Document document;
         if (optionalDocument.isEmpty()) {
@@ -30,7 +30,8 @@ public class DocumentService {
             document = optionalDocument.get();
         }
         Content content = new Content();
-        content.setContentBody(documentBody);
+        content.setContentBody(contentBody);
+        content.setComment(comment);
         content.setContributor(contributor);
         document.addContent(content);
         documentRepository.save(document);
