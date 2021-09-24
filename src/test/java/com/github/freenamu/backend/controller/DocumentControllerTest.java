@@ -2,6 +2,7 @@ package com.github.freenamu.backend.controller;
 
 import com.github.freenamu.backend.entity.Content;
 import com.github.freenamu.backend.service.DocumentService;
+import com.github.freenamu.backend.vo.History;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -10,9 +11,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
-import java.util.ArrayList;
-
 import static com.github.freenamu.backend.TestUtil.*;
+import static com.github.freenamu.backend.vo.History.Row;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
@@ -166,11 +166,11 @@ class DocumentControllerTest {
         // Given
         String documentName = getRandomString();
         int size = 10;
-        ArrayList<Content> expectedRevisions = new ArrayList<>();
+        History expectedHistory = new History();
         for (int i = 0; i < size; i++) {
-            expectedRevisions.add(getExpectedContent((long) i, getRandomString(), getRandomString(), getRandomString()));
+            expectedHistory.add(getExpectedContent((long) i, getRandomString(), getRandomString(), getRandomString()));
         }
-        given(documentService.getHistoryOfDocument(documentName)).willReturn(expectedRevisions);
+        given(documentService.getHistoryOfDocument(documentName)).willReturn(expectedHistory);
 
         // When
         ResultActions resultActions = mockMvc.perform(get(getHistoryOfDocumentURLTemplate, documentName));
@@ -178,11 +178,10 @@ class DocumentControllerTest {
         // Then
         resultActions.andExpect(status().isOk());
         for (int i = 0; i < size; i++) {
-            Content expectedContent = expectedRevisions.get(i);
-            resultActions.andExpect(jsonPath("$[" + i + "].contentId").value(expectedContent.getContentId()));
-            resultActions.andExpect(jsonPath("$[" + i + "].contentBody").value(expectedContent.getContentBody()));
-            resultActions.andExpect(jsonPath("$[" + i + "].comment").value(expectedContent.getComment()));
-            resultActions.andExpect(jsonPath("$[" + i + "].contributor").value(expectedContent.getContributor()));
+            Row expectedRow = expectedHistory.get(i);
+            resultActions.andExpect(jsonPath("rows[" + i + "].revisionIndex").value(expectedRow.getRevisionIndex()));
+            resultActions.andExpect(jsonPath("rows[" + i + "].comment").value(expectedRow.getComment()));
+            resultActions.andExpect(jsonPath("rows[" + i + "].contributor").value(expectedRow.getContributor()));
         }
     }
 

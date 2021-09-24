@@ -2,9 +2,11 @@ package com.github.freenamu.backend;
 
 import com.github.freenamu.backend.entity.Content;
 import com.github.freenamu.backend.entity.Document;
+import com.github.freenamu.backend.vo.History;
 
 import java.util.List;
 
+import static com.github.freenamu.backend.vo.History.Row;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TestUtil {
@@ -72,5 +74,18 @@ public class TestUtil {
         assertEquals(expectedContent.getContentBody(), actualContent.getContentBody());
         assertEquals(expectedContent.getComment(), actualContent.getComment());
         assertEquals(expectedContent.getContributor(), actualContent.getContributor());
+    }
+
+    public static void assertHistoryEquals(History expectedHistory, History actualHistory) {
+        List<Row> expectedHistoryRows = expectedHistory.getRows();
+        List<Row> actualHistoryRows = actualHistory.getRows();
+        assertEquals(expectedHistoryRows.size(), actualHistoryRows.size());
+        for (int i = 0; i < expectedHistoryRows.size(); i++) {
+            Row expectedHistoryRow = expectedHistoryRows.get(i);
+            Row actualHistoryRow = actualHistoryRows.get(i);
+            assertEquals(expectedHistoryRow.getRevisionIndex(), actualHistoryRow.getRevisionIndex());
+            assertEquals(expectedHistoryRow.getComment(), actualHistoryRow.getComment());
+            assertEquals(expectedHistoryRow.getContributor(), actualHistoryRow.getContributor());
+        }
     }
 }
