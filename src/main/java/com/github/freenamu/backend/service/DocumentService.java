@@ -50,7 +50,6 @@ public class DocumentService {
         if (optionalDocument.isPresent()) {
             Document document = optionalDocument.get();
             List<Content> revisions = document.getRevisions();
-            revisions.sort(Comparator.comparing(Content::getContentId));
             if (1 <= revisionIndex && revisionIndex <= revisions.size()) {
                 return revisions.get(revisionIndex - 1);
             }
@@ -63,7 +62,6 @@ public class DocumentService {
         if (optionalDocument.isPresent()) {
             Document document = optionalDocument.get();
             List<Content> revisions = document.getRevisions();
-            revisions.sort(Comparator.comparing(Content::getContentId));
             History result = new History();
             for (Content content : revisions) {
                 result.add(content);
