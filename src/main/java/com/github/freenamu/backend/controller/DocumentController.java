@@ -17,37 +17,42 @@ public class DocumentController {
 
     @GetMapping("/document/{documentName}/latest/raw")
     public ResponseEntity<Content> getLatestDocument(@PathVariable String documentName) {
-        Content latestDocument = documentService.getLatestDocument(documentName);
-        if (latestDocument == null) {
+        Content content = documentService.getLatestDocument(documentName);
+        if (content == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } else {
-            return new ResponseEntity<>(latestDocument, HttpStatus.OK);
+            return new ResponseEntity<>(content, HttpStatus.OK);
         }
     }
 
     @GetMapping("/document/{documentName}/{revisionIndex}/raw")
     public ResponseEntity<Content> getDocument(@PathVariable String documentName, @PathVariable int revisionIndex) {
-        Content document = documentService.getDocumentByRevisionIndex(documentName, revisionIndex);
-        if (document == null) {
+        Content content = documentService.getDocumentByRevisionIndex(documentName, revisionIndex);
+        if (content == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } else {
-            return new ResponseEntity<>(document, HttpStatus.OK);
+            return new ResponseEntity<>(content, HttpStatus.OK);
         }
     }
 
     @GetMapping("/document/{documentName}/history")
     public ResponseEntity<List<Content>> getHistoryOfDocument(@PathVariable String documentName) {
-        List<Content> historyOfDocument = documentService.getHistoryOfDocument(documentName);
-        if (historyOfDocument == null) {
+        List<Content> contentList = documentService.getHistoryOfDocument(documentName);
+        if (contentList == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } else {
-            return new ResponseEntity<>(historyOfDocument, HttpStatus.OK);
+            return new ResponseEntity<>(contentList, HttpStatus.OK);
         }
     }
 
     @PostMapping("/document/{documentName}")
     public ResponseEntity<Void> PostDocument(@PathVariable String documentName, @RequestParam String contentBody, @RequestParam(defaultValue = "") String comment, HttpServletRequest request) {
-        documentService.postDocument(documentName, contentBody, comment, request.getRemoteAddr());
+        try {
+            documentService.postDocument(documentName, contentBody, comment, request.getRemoteAddr());
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

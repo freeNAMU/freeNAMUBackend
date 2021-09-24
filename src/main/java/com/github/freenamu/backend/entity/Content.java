@@ -27,6 +27,10 @@ public class Content {
         return contentId;
     }
 
+    public void setContentId(Long contentId) {
+        this.contentId = contentId;
+    }
+
     public String getContributor() {
         return contributor;
     }
