@@ -63,8 +63,8 @@ public class History {
             this.contributor = contributor;
         }
 
-        public LocalDateTime getCreateDate() {
-            return createDate;
+        public String getCreateDate() {
+            return createDate.toString();
         }
 
         public void setCreateDate(LocalDateTime createDate) {

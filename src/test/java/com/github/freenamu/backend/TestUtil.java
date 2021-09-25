@@ -51,11 +51,7 @@ public class TestUtil {
     }
 
     public static Content getExpectedContent(String contentBody, String comment, String contributor) {
-        Content expectedContent = new Content();
-        expectedContent.setContentBody(contentBody);
-        expectedContent.setComment(comment);
-        expectedContent.setContributor(contributor);
-        return expectedContent;
+        return getExpectedContent((long) getUniqueNumber(), contentBody, comment, contributor);
     }
 
     public static void assertDocumentEquals(Document expectedDocument, Document actualDocument) {
@@ -74,6 +70,7 @@ public class TestUtil {
         assertEquals(expectedContent.getContentBody(), actualContent.getContentBody());
         assertEquals(expectedContent.getComment(), actualContent.getComment());
         assertEquals(expectedContent.getContributor(), actualContent.getContributor());
+        assertEquals(expectedContent.getCreateDate(), actualContent.getCreateDate());
     }
 
     public static void assertHistoryEquals(History expectedHistory, History actualHistory) {
@@ -87,6 +84,7 @@ public class TestUtil {
             assertEquals(expectedHistoryRow.getComment(), actualHistoryRow.getComment());
             assertEquals(expectedHistoryRow.getContributor(), actualHistoryRow.getContributor());
             assertEquals(expectedHistoryRow.getLength(), actualHistoryRow.getLength());
+            assertEquals(expectedHistoryRow.getCreateDate(), actualHistoryRow.getCreateDate());
         }
     }
 }

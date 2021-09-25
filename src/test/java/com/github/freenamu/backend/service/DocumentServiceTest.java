@@ -4,28 +4,47 @@ import com.github.freenamu.backend.entity.Content;
 import com.github.freenamu.backend.entity.Document;
 import com.github.freenamu.backend.repository.DocumentRepository;
 import com.github.freenamu.backend.vo.History;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 import static com.github.freenamu.backend.TestUtil.*;
-import static com.github.freenamu.backend.vo.History.*;
+import static com.github.freenamu.backend.vo.History.Row;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mockStatic;
 
 @SpringBootTest
 @Transactional
 public class DocumentServiceTest {
+    private MockedStatic<LocalDateTime> localDateTimeMockedStatic;
+
     @Autowired
     private DocumentService documentService;
 
     @Autowired
     private DocumentRepository documentRepository;
+
+    @BeforeEach
+    public void setUp() {
+        Clock clock = Clock.systemDefaultZone();
+        LocalDateTime now = LocalDateTime.now(clock);
+        localDateTimeMockedStatic = mockStatic(LocalDateTime.class);
+        localDateTimeMockedStatic.when(LocalDateTime::now).thenReturn(now);
+    }
+
+    @AfterEach
+    public void tearDown() {
+        localDateTimeMockedStatic.close();
+    }
 
     @Test
     public void postDocumentOnce() {
@@ -234,6 +253,7 @@ public class DocumentServiceTest {
             row.setComment(comment);
             row.setContributor(contributor);
             row.setLength(contentBody.length());
+            row.setCreateDate(LocalDateTime.now());
             expected.getRows().add(row);
         }
 
