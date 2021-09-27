@@ -36,7 +36,7 @@ public class History {
         private int revisionIndex;
         private String comment;
         private String contributor;
-        private LocalDateTime createDate;
+        private String createDate;
         private int length;
 
         public int getRevisionIndex() {
@@ -64,10 +64,10 @@ public class History {
         }
 
         public String getCreateDate() {
-            return createDate.toString();
+            return createDate;
         }
 
-        public void setCreateDate(LocalDateTime createDate) {
+        public void setCreateDate(String createDate) {
             this.createDate = createDate;
         }
 

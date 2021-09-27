@@ -113,7 +113,7 @@ class DocumentControllerTest {
         resultActions.andExpect(jsonPath("contentBody").value(expectedContent.getContentBody()));
         resultActions.andExpect(jsonPath("comment").value(expectedContent.getComment()));
         resultActions.andExpect(jsonPath("contributor").value(expectedContent.getContributor()));
-        resultActions.andExpect(jsonPath("createDate").value(expectedContent.getCreateDate().toString()));
+        resultActions.andExpect(jsonPath("createDate").value(expectedContent.getCreateDate()));
     }
 
     @Test
@@ -146,7 +146,7 @@ class DocumentControllerTest {
         resultActions.andExpect(jsonPath("contentBody").value(expectedContent.getContentBody()));
         resultActions.andExpect(jsonPath("comment").value(expectedContent.getComment()));
         resultActions.andExpect(jsonPath("contributor").value(expectedContent.getContributor()));
-        resultActions.andExpect(jsonPath("createDate").value(expectedContent.getCreateDate().toString()));
+        resultActions.andExpect(jsonPath("createDate").value(expectedContent.getCreateDate()));
     }
 
     @Test

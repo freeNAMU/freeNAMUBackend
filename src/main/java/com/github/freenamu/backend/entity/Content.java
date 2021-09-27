@@ -39,8 +39,8 @@ public class Content {
         this.contributor = contributor;
     }
 
-    public LocalDateTime getCreateDate() {
-        return createDate;
+    public String getCreateDate() {
+        return createDate.toString();
     }
 
     public String getContentBody() {

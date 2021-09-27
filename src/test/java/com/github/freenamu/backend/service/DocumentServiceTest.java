@@ -253,7 +253,7 @@ public class DocumentServiceTest {
             row.setComment(comment);
             row.setContributor(contributor);
             row.setLength(contentBody.length());
-            row.setCreateDate(LocalDateTime.now());
+            row.setCreateDate(LocalDateTime.now().toString());
             expected.getRows().add(row);
         }
 
