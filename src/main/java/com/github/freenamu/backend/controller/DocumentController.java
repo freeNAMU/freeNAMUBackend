@@ -15,7 +15,7 @@ public class DocumentController {
     @Autowired
     private DocumentService documentService;
 
-    @GetMapping("/document/{documentName}/latest/raw")
+    @GetMapping("/api/document/{documentName}/latest/raw")
     public ResponseEntity<Content> getLatestDocument(@PathVariable String documentName) {
         Content content = documentService.getLatestDocument(documentName);
         if (content == null) {
@@ -25,7 +25,7 @@ public class DocumentController {
         }
     }
 
-    @GetMapping("/document/{documentName}/{revisionIndex}/raw")
+    @GetMapping("/api/document/{documentName}/{revisionIndex}/raw")
     public ResponseEntity<Content> getDocument(@PathVariable String documentName, @PathVariable int revisionIndex) {
         Content content = documentService.getDocumentByRevisionIndex(documentName, revisionIndex);
         if (content == null) {
@@ -35,7 +35,7 @@ public class DocumentController {
         }
     }
 
-    @GetMapping("/document/{documentName}/history")
+    @GetMapping("/api/document/{documentName}/history")
     public ResponseEntity<History> getHistoryOfDocument(@PathVariable String documentName) {
         History history = documentService.getHistoryOfDocument(documentName);
         if (history == null) {
@@ -45,7 +45,7 @@ public class DocumentController {
         }
     }
 
-    @PostMapping("/document/{documentName}")
+    @PostMapping("/api/document/{documentName}")
     public ResponseEntity<Void> PostDocument(@PathVariable String documentName, @RequestParam String contentBody, @RequestParam(defaultValue = "") String comment, HttpServletRequest request) {
         try {
             documentService.postDocument(documentName, contentBody, comment, request.getRemoteAddr());

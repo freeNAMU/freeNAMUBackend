@@ -24,10 +24,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 class DocumentControllerTest {
-    private final String getLatestDocumentURLTemplate = "/document/{documentName}/latest/raw";
-    private final String getDocumentByRevisionIndexURLTemplate = "/document/{documentName}/{revisionIndex}/raw";
-    private final String getHistoryOfDocumentURLTemplate = "/document/{documentName}/history";
-    private final String postDocumentURLTemplate = "/document/{documentName}";
+    private final String getLatestDocumentURLTemplate = "/api/document/{documentName}/latest/raw";
+    private final String getDocumentByRevisionIndexURLTemplate = "/api/document/{documentName}/{revisionIndex}/raw";
+    private final String getHistoryOfDocumentURLTemplate = "/api/document/{documentName}/history";
+    private final String postDocumentURLTemplate = "/api/document/{documentName}";
 
     @Autowired
     private MockMvc mockMvc;
