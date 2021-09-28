@@ -10,7 +10,10 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
-import static com.github.freenamu.backend.TestUtil.*;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
@@ -36,9 +39,9 @@ class DocumentControllerTest {
     @Test
     void returnOKWhenPostDocumentWithFullValidInput() throws Exception {
         // Given
-        String documentName = getRandomString();
-        String contentBody = getRandomString();
-        String comment = getRandomString();
+        String documentName = "anonymous name";
+        String contentBody = "anonymous body";
+        String comment = "anonymous comment";
 
         // When
         ResultActions resultActions = mockMvc.perform(post(postDocumentURLTemplate, documentName)
@@ -53,8 +56,8 @@ class DocumentControllerTest {
     @Test
     void returnBadRequestWhenPostDocumentWithoutContentBody() throws Exception {
         // Given
-        String documentName = getRandomString();
-        String comment = getRandomString();
+        String documentName = "anonymous name";
+        String comment = "anonymous comment";
 
         // When
         ResultActions resultActions = mockMvc.perform(post(postDocumentURLTemplate, documentName)
@@ -68,8 +71,8 @@ class DocumentControllerTest {
     @Test
     void returnOKWhenPostDocumentWithoutComment() throws Exception {
         // Given
-        String documentName = getRandomString();
-        String contentBody = getRandomString();
+        String documentName = "anonymous name";
+        String contentBody = "anonymous comment";
 
         // When
         ResultActions resultActions = mockMvc.perform(post(postDocumentURLTemplate, documentName)
@@ -83,9 +86,9 @@ class DocumentControllerTest {
     @Test
     void returnBadRequestWhenPostDocumentWithLongComment() throws Exception {
         // Given
-        String documentName = getRandomString();
-        String contentBody = getRandomString();
-        String comment = getRandomString(256);
+        String documentName = "anonymous name";
+        String contentBody = "anonymous body";
+        String comment = "l" + "o".repeat(253) + "ng";
         doThrow(new IllegalArgumentException()).when(documentService).postDocument(eq(documentName), eq(contentBody), eq(comment), anyString());
 
         // When
@@ -100,8 +103,9 @@ class DocumentControllerTest {
     @Test
     void returnLatestDocumentWhenGetLatestDocumentWithFullValidInput() throws Exception {
         // Given
-        String documentName = getRandomString();
-        Content expectedContent = getAnonymousContent();
+        String documentName = "anonymous name";
+        Content expectedContent = new Content("anonymous body", "anonymous comment", "anonymous contributor");
+        expectedContent.setContentId(1L);
         given(documentService.getLatestDocument(documentName)).willReturn(expectedContent);
 
         // When
@@ -113,13 +117,13 @@ class DocumentControllerTest {
         resultActions.andExpect(jsonPath("contentBody").value(expectedContent.getContentBody()));
         resultActions.andExpect(jsonPath("comment").value(expectedContent.getComment()));
         resultActions.andExpect(jsonPath("contributor").value(expectedContent.getContributor()));
-        resultActions.andExpect(jsonPath("createDate").value(expectedContent.getCreateDate()));
+        resultActions.andExpect(jsonPath("createDateTime").value(expectedContent.getCreateDateTime()));
     }
 
     @Test
     void returnNotFoundWhenGetLatestDocumentWithNotExistDocument() throws Exception {
         // Given
-        String documentName = getRandomString();
+        String documentName = "anonymous name";
         given(documentService.getLatestDocument(documentName)).willReturn(null);
 
         // When
@@ -132,9 +136,9 @@ class DocumentControllerTest {
     @Test
     void returnDocumentWhenGetDocumentByRevisionIndexWithFullValidInput() throws Exception {
         // Given
-        String documentName = getRandomString();
-        int revisionIndex = getUniqueNumber();
-        Content expectedContent = getAnonymousContent();
+        String documentName = "anonymous name";
+        int revisionIndex = 1;
+        Content expectedContent = new Content("anonymous body", "anonymous comment", "anonymous contributor");
         given(documentService.getDocumentByRevisionIndex(documentName, revisionIndex)).willReturn(expectedContent);
 
         // When
@@ -146,14 +150,14 @@ class DocumentControllerTest {
         resultActions.andExpect(jsonPath("contentBody").value(expectedContent.getContentBody()));
         resultActions.andExpect(jsonPath("comment").value(expectedContent.getComment()));
         resultActions.andExpect(jsonPath("contributor").value(expectedContent.getContributor()));
-        resultActions.andExpect(jsonPath("createDate").value(expectedContent.getCreateDate()));
+        resultActions.andExpect(jsonPath("createDateTime").value(expectedContent.getCreateDateTime()));
     }
 
     @Test
     void returnNotFoundWhenGetDocumentByRevisionIndexWithNotExistDocument() throws Exception {
         // Given
-        String documentName = getRandomString();
-        int revisionIndex = getUniqueNumber();
+        String documentName = "anonymous name";
+        int revisionIndex = 1;
         given(documentService.getDocumentByRevisionIndex(documentName, revisionIndex)).willReturn(null);
 
         // When
@@ -163,16 +167,22 @@ class DocumentControllerTest {
         resultActions.andExpect(status().isNotFound());
     }
 
-    /*@Test
+    @Test
     void returnHistoryOfDocumentWhenGetHistoryOfDocumentWithFullValidInput() throws Exception {
         // Given
-        String documentName = getRandomString();
+        String documentName = "anonymous name";
         int size = 10;
-        History expectedHistory = new History();
+        ArrayList<HashMap<String, Object>> expectedHistoryList = new ArrayList<>();
         for (int i = 0; i < size; i++) {
-            expectedHistory.add(getExpectedContent((long) i, getRandomString(), getRandomString(), getRandomString()));
+            HashMap<String, Object> expectedHistoryRow = new HashMap<>();
+            expectedHistoryRow.put("revisionIndex", size - i);
+            expectedHistoryRow.put("comment", "anonymous comment" + i);
+            expectedHistoryRow.put("contributor", "anonymous comment" + i);
+            expectedHistoryRow.put("lengthDiffer", i);
+            expectedHistoryRow.put("createDateTime", LocalDateTime.now().toString());
+            expectedHistoryList.add(expectedHistoryRow);
         }
-        given(documentService.getHistoryOfDocument(documentName)).willReturn(expectedHistory);
+        given(documentService.getHistoryOfDocument(documentName)).willReturn(expectedHistoryList);
 
         // When
         ResultActions resultActions = mockMvc.perform(get(getHistoryOfDocumentURLTemplate, documentName));
@@ -180,19 +190,19 @@ class DocumentControllerTest {
         // Then
         resultActions.andExpect(status().isOk());
         for (int i = 0; i < size; i++) {
-            Row expectedRow = expectedHistory.get(i);
-            resultActions.andExpect(jsonPath("rows[" + i + "].revisionIndex").value(expectedRow.getRevisionIndex()));
-            resultActions.andExpect(jsonPath("rows[" + i + "].comment").value(expectedRow.getComment()));
-            resultActions.andExpect(jsonPath("rows[" + i + "].contributor").value(expectedRow.getContributor()));
-            resultActions.andExpect(jsonPath("rows[" + i + "].length").value(expectedRow.getLength()));
-            resultActions.andExpect(jsonPath("rows[" + i + "].createDate").value(expectedRow.getCreateDate()));
+            HashMap<String, Object> expectedHistoryRow = expectedHistoryList.get(i);
+            resultActions.andExpect(jsonPath("$[" + i + "].revisionIndex").value(expectedHistoryRow.get("revisionIndex")));
+            resultActions.andExpect(jsonPath("$[" + i + "].comment").value(expectedHistoryRow.get("comment")));
+            resultActions.andExpect(jsonPath("$[" + i + "].contributor").value(expectedHistoryRow.get("contributor")));
+            resultActions.andExpect(jsonPath("$[" + i + "].lengthDiffer").value(expectedHistoryRow.get("lengthDiffer")));
+            resultActions.andExpect(jsonPath("$[" + i + "].createDateTime").value(expectedHistoryRow.get("createDateTime")));
         }
-    }*/
+    }
 
     @Test
     void returnNotFoundWhenGetHistoryOfDocumentDocumentWithNotExistDocument() throws Exception {
         // Given
-        String documentName = getRandomString();
+        String documentName = "anonymous name";
         given(documentService.getHistoryOfDocument(documentName)).willReturn(null);
 
         // When

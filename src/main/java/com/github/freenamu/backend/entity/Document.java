@@ -11,7 +11,16 @@ public class Document {
 
     @OneToMany(cascade = CascadeType.ALL)
     @OrderColumn
-    private List<Content> revisions = new ArrayList<>();
+    private List<Content> revisions;
+
+    public Document(String documentName, List<Content> revisions) {
+        this.documentName = documentName;
+        this.revisions = revisions;
+    }
+
+    public Document() {
+        this.revisions = new ArrayList<>();
+    }
 
     public String getDocumentName() {
         return documentName;

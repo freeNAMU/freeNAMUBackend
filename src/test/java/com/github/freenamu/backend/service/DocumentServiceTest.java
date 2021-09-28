@@ -3,58 +3,39 @@ package com.github.freenamu.backend.service;
 import com.github.freenamu.backend.entity.Content;
 import com.github.freenamu.backend.entity.Document;
 import com.github.freenamu.backend.repository.DocumentRepository;
-import com.github.freenamu.backend.vo.History;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Optional;
 
 import static com.github.freenamu.backend.TestUtil.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mockStatic;
 
 @SpringBootTest
 @Transactional
 public class DocumentServiceTest {
-    private MockedStatic<LocalDateTime> localDateTimeMockedStatic;
-
     @Autowired
     private DocumentService documentService;
 
     @Autowired
     private DocumentRepository documentRepository;
 
-    @BeforeEach
-    public void setUp() {
-        Clock clock = Clock.systemDefaultZone();
-        LocalDateTime now = LocalDateTime.now(clock);
-        localDateTimeMockedStatic = mockStatic(LocalDateTime.class);
-        localDateTimeMockedStatic.when(LocalDateTime::now).thenReturn(now);
-    }
-
-    @AfterEach
-    public void tearDown() {
-        localDateTimeMockedStatic.close();
-    }
-
     @Test
     public void postDocumentOnce() {
         // Given
-        String documentName = getRandomString();
-        String contentBody = getRandomString();
-        String comment = getRandomString();
-        String contributor = getRandomString();
+        String documentName = "anonymous name";
         ArrayList<Content> expectedRevisions = new ArrayList<>();
-        expectedRevisions.add(getExpectedContent(contentBody, comment, contributor));
-        Document expectedDocument = getExpectedDocument(documentName, expectedRevisions);
+        Document expectedDocument = new Document(documentName, expectedRevisions);
+
+        String contentBody = "anonymous body";
+        String comment = "anonymous comment";
+        String contributor = "anonymous contributor";
+        expectedRevisions.add(new Content(contentBody, comment, contributor));
 
         // When
         documentService.postDocument(documentName, contentBody, comment, contributor);
@@ -69,18 +50,18 @@ public class DocumentServiceTest {
     @Test
     public void postDocumentMany() {
         // Given
-        String documentName = getRandomString();
+        String documentName = "anonymous name";
         ArrayList<Content> expectedRevisions = new ArrayList<>();
+        Document expectedDocument = new Document(documentName, expectedRevisions);
 
         // When
         for (int i = 0; i < 100; i++) {
-            String contentBody = getRandomString();
-            String comment = getRandomString();
-            String contributor = getRandomString();
+            String contentBody = "anonymous body";
+            String comment = "anonymous comment";
+            String contributor = "anonymous contributor";
             documentService.postDocument(documentName, contentBody, comment, contributor);
-            expectedRevisions.add(getExpectedContent(contentBody, comment, contributor));
+            expectedRevisions.add(new Content(contentBody, comment, contributor));
         }
-        Document expectedDocument = getExpectedDocument(documentName, expectedRevisions);
 
         // Then
         Optional<Document> optionalDocument = documentRepository.findById(documentName);
@@ -92,13 +73,14 @@ public class DocumentServiceTest {
     @Test
     public void postDocumentWithLongBody() {
         // Given
-        String documentName = getRandomString();
-        String contentBody = getRandomString(1000000);
-        String comment = getRandomString();
-        String contributor = getRandomString();
+        String documentName = "anonymous name";
         ArrayList<Content> expectedRevisions = new ArrayList<>();
-        expectedRevisions.add(getExpectedContent(contentBody, comment, contributor));
-        Document expectedDocument = getExpectedDocument(documentName, expectedRevisions);
+        Document expectedDocument = new Document(documentName, expectedRevisions);
+
+        String contentBody = "l" + "o".repeat(100000) + "ng";
+        String comment = "anonymous comment";
+        String contributor = "anonymous contributor";
+        expectedRevisions.add(new Content(contentBody, comment, contributor));
 
         // When
         documentService.postDocument(documentName, contentBody, comment, contributor);
@@ -113,13 +95,14 @@ public class DocumentServiceTest {
     @Test
     public void postDocumentWithCommentLengthLessThan256() {
         // Given
-        String documentName = getRandomString();
-        String contentBody = getRandomString();
-        String comment = getRandomString(255);
-        String contributor = getRandomString();
+        String documentName = "anonymous name";
         ArrayList<Content> expectedRevisions = new ArrayList<>();
-        expectedRevisions.add(getExpectedContent(contentBody, comment, contributor));
-        Document expectedDocument = getExpectedDocument(documentName, expectedRevisions);
+        Document expectedDocument = new Document(documentName, expectedRevisions);
+
+        String contentBody = "anonymous body";
+        String comment = "sh" + "o".repeat(251) + "rt";
+        String contributor = "anonymous contributor";
+        expectedRevisions.add(new Content(contentBody, comment, contributor));
 
         // When
         documentService.postDocument(documentName, contentBody, comment, contributor);
@@ -134,10 +117,10 @@ public class DocumentServiceTest {
     @Test
     public void throwExceptionWhenPostDocumentWithLongComment() {
         // Given
-        String documentName = getRandomString();
-        String contentBody = getRandomString();
-        String comment = getRandomString(256);
-        String contributor = getRandomString();
+        String documentName = "anonymous name";
+        String contentBody = "anonymous body";
+        String comment = "l" + "o".repeat(253) + "ng";
+        String contributor = "anonymous contributor";
 
         // When
         assertThrows(IllegalArgumentException.class, () -> documentService.postDocument(documentName, contentBody, comment, contributor));
@@ -148,15 +131,15 @@ public class DocumentServiceTest {
     @Test
     public void getLatestDocument() {
         // Given
-        String documentName = getRandomString();
-        Content expected = null;
+        String documentName = "anonymous name";
+        String contentBody = "anonymous body";
+        String comment = "anonymous comment";
+        String contributor = "anonymous contributor";
         for (int i = 0; i < 100; i++) {
-            String contentBody = getRandomString();
-            String comment = getRandomString();
-            String contributor = getRandomString();
-            documentService.postDocument(documentName, contentBody, comment, contributor);
-            expected = getExpectedContent(contentBody, comment, contributor);
+            documentService.postDocument(documentName, contentBody + i, comment + i, contributor + i);
         }
+        documentService.postDocument(documentName, contentBody, comment, contributor);
+        Content expected = new Content(contentBody, comment, contributor);
 
         // When
         Content actual = documentService.getLatestDocument(documentName);
@@ -168,7 +151,7 @@ public class DocumentServiceTest {
     @Test
     public void returnNullIfDocumentIsNotExistWhenGetLatestDocument() {
         // Given
-        String documentName = getRandomString();
+        String documentName = "anonymous name";
 
         // When
         Content actual = documentService.getLatestDocument(documentName);
@@ -178,21 +161,18 @@ public class DocumentServiceTest {
     }
 
     @Test
-    public void getDocumentByRevisionIndex1() {
+    public void getDocumentByRevisionIndex() {
         // Given
-        String documentName = getRandomString();
+        String documentName = "anonymous name";
         int revisionIndex = 1;
-        String expectedBody = getRandomString();
-        String expectedComment = getRandomString();
-        String expectedContributor = getRandomString();
-        documentService.postDocument(documentName, expectedBody, expectedComment, expectedContributor);
-        Content expected = getExpectedContent(expectedBody, expectedComment, expectedContributor);
+        String contentBody = "anonymous body";
+        String comment = "anonymous comment";
+        String contributor = "anonymous contributor";
+        documentService.postDocument(documentName, contentBody, comment, contributor);
+        Content expected = new Content(contentBody, comment, contributor);
         int size = 100;
         for (int i = 0; i < size; i++) {
-            String contentBody = getRandomString();
-            String comment = getRandomString();
-            String contributor = getRandomString();
-            documentService.postDocument(documentName, contentBody, comment, contributor);
+            documentService.postDocument(documentName, contentBody + 1, comment + 1, contributor + 1);
         }
 
         // When
@@ -203,23 +183,15 @@ public class DocumentServiceTest {
     }
 
     @Test
-    public void getDocumentByRevisionIndex2() {
+    public void returnNullIfOutOfRangeWhenGetDocumentByRevisionIndex1() {
         // Given
-        String documentName = getRandomString();
-        int revisionIndex = 2;
-        Content expected = null;
-        for (int i = 0; i < 2; i++) {
-            String expectedBody = getRandomString();
-            String expectedComment = getRandomString();
-            String expectedContributor = getRandomString();
-            documentService.postDocument(documentName, expectedBody, expectedComment, expectedContributor);
-            expected = getExpectedContent(expectedBody, expectedComment, expectedContributor);
-        }
+        String documentName = "anonymous name";
+        int revisionIndex = 0;
         int size = 100;
         for (int i = 0; i < size; i++) {
-            String contentBody = getRandomString();
-            String comment = getRandomString();
-            String contributor = getRandomString();
+            String contentBody = "anonymous body";
+            String comment = "anonymous comment";
+            String contributor = "anonymous contributor";
             documentService.postDocument(documentName, contentBody, comment, contributor);
         }
 
@@ -227,21 +199,41 @@ public class DocumentServiceTest {
         Content actual = documentService.getDocumentByRevisionIndex(documentName, revisionIndex);
 
         // Then
-        assertContentEquals(actual, expected);
+        assertNull(actual);
     }
 
     @Test
-    public void returnNullIfOutOfRangeWhenGetDocumentByRevisionIndex() {
+    public void returnNullIfOutOfRangeWhenGetDocumentByRevisionIndex2() {
         // Given
-        String documentName = getRandomString();
-        int size = 100;
-        for (int i = 0; i < size; i++) {
-            String contentBody = getRandomString();
-            String comment = getRandomString();
-            String contributor = getRandomString();
-            documentService.postDocument(documentName, contentBody, comment, contributor);
-        }
+        String documentName = "anonymous name";
         int revisionIndex = 101;
+        int size = 100;
+        for (int i = 0; i < size; i++) {
+            String contentBody = "anonymous body";
+            String comment = "anonymous comment";
+            String contributor = "anonymous contributor";
+            documentService.postDocument(documentName, contentBody, comment, contributor);
+        }
+
+        // When
+        Content actual = documentService.getDocumentByRevisionIndex(documentName, revisionIndex);
+
+        // Then
+        assertNull(actual);
+    }
+
+    @Test
+    public void returnNullIfOutOfRangeWhenGetDocumentByRevisionIndex3() {
+        // Given
+        String documentName = "anonymous name";
+        int revisionIndex = -1;
+        int size = 100;
+        for (int i = 0; i < size; i++) {
+            String contentBody = "anonymous body";
+            String comment = "anonymous comment";
+            String contributor = "anonymous contributor";
+            documentService.postDocument(documentName, contentBody, comment, contributor);
+        }
 
         // When
         Content actual = documentService.getDocumentByRevisionIndex(documentName, revisionIndex);
@@ -253,7 +245,7 @@ public class DocumentServiceTest {
     @Test
     public void returnNullIfDocumentIsNotExistWhenGetDocumentByRevisionIndex() {
         // Given
-        String documentName = getRandomString();
+        String documentName = "anonymous name";
         int revisionIndex = 1;
 
         // When
@@ -263,44 +255,41 @@ public class DocumentServiceTest {
         assertNull(actual);
     }
 
-    /*@Test
+    @Test
     public void getHistoryOfDocument() {
         // Given
-        String documentName = getRandomString();
+        String documentName = "anonymous name";
         int size = 100;
-        ArrayList<Content> contentList = new ArrayList<>();
-        for (int i = 0; i < size; i++) {
-            String contentBody = getRandomString();
-            String comment = getRandomString();
-            String contributor = getRandomString();
-            documentService.postDocument(documentName, contentBody, comment, contributor);
-            contentList.add(getExpectedContent(contentBody, comment, contributor));
+        String comment = "anonymous comment";
+        String contributor = "anonymous contributor";
+        for (int i = 1; i <= size; i++) {
+            documentService.postDocument(documentName, "test".repeat(i), comment + i, contributor + i);
         }
-        History expected = new History();
-        for (int i = contentList.size() - 1; i >= 0; i--) {
-            Row row = new Row();
-            row.setRevisionIndex(i);
-            row.setComment(comment);
-            row.setContributor(contributor);
-            row.setLength(contentBody.length());
-            row.setCreateDate(LocalDateTime.now().toString());
-            expected.getRows().add(row);
+        ArrayList<HashMap<String, Object>> expected = new ArrayList<>();
+        for (int i = size; i > 0; i--) {
+            HashMap<String, Object> expectedHistoryRow = new HashMap<>();
+            expectedHistoryRow.put("revisionIndex", i);
+            expectedHistoryRow.put("comment", comment + i);
+            expectedHistoryRow.put("contributor", contributor + i);
+            expectedHistoryRow.put("lengthDiffer", 4);
+            expectedHistoryRow.put("createDateTime", LocalDateTime.now().toString());
+            expected.add(expectedHistoryRow);
         }
 
         // When
-        History actual = documentService.getHistoryOfDocument(documentName);
+        ArrayList<HashMap<String, Object>> actual = documentService.getHistoryOfDocument(documentName);
 
         // Then
         assertHistoryEquals(expected, actual);
-    }*/
+    }
 
     @Test
     public void returnNullIfDocumentIsNotExistWhenGetHistoryOfDocument() {
         // Given
-        String documentName = getRandomString();
+        String documentName = "anonymous name";
 
         // When
-        History actual = documentService.getHistoryOfDocument(documentName);
+        ArrayList<HashMap<String, Object>> actual = documentService.getHistoryOfDocument(documentName);
 
         // Then
         assertNull(actual);

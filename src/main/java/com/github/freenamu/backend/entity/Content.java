@@ -10,18 +10,29 @@ public class Content {
     private Long contentId;
 
     @Column
-    private String contributor;
-
-    @Column
-    private LocalDateTime createDate = LocalDateTime.now();
-
-    @Column
     @Lob
     private String contentBody;
 
     @Column
     @Lob
     private String comment;
+
+    @Column
+    private String contributor;
+
+    @Column
+    private LocalDateTime createDateTime;
+
+    public Content() {
+        this.createDateTime = LocalDateTime.now();
+    }
+
+    public Content(String contentBody, String comment, String contributor) {
+        this();
+        this.contributor = contributor;
+        this.contentBody = contentBody;
+        this.comment = comment;
+    }
 
     public Long getContentId() {
         return contentId;
@@ -39,8 +50,12 @@ public class Content {
         this.contributor = contributor;
     }
 
-    public String getCreateDate() {
-        return createDate.toString();
+    public String getCreateDateTime() {
+        return createDateTime.toString();
+    }
+
+    public void setCreateDateTime(LocalDateTime createDate) {
+        this.createDateTime = createDate;
     }
 
     public String getContentBody() {

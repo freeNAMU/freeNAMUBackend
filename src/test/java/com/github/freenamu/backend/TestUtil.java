@@ -2,58 +2,16 @@ package com.github.freenamu.backend;
 
 import com.github.freenamu.backend.entity.Content;
 import com.github.freenamu.backend.entity.Document;
-import com.github.freenamu.backend.vo.History;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
-import static com.github.freenamu.backend.vo.History.Row;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TestUtil {
-    private static int uniqueNumber = 0;
-
-    public static int getUniqueNumber() {
-        return uniqueNumber++;
-    }
-
-    public static String getRandomString() {
-        return getRandomString(10);
-    }
-
-    public static String getRandomString(int length) {
-        StringBuilder result = new StringBuilder();
-        for (int i = 0; i < length; i++) {
-            result.append((char) ((Math.random() * 11172) + 0xAC00));
-        }
-        return result.toString();
-    }
-
-    public static Document getExpectedDocument(String documentName, List<Content> expectedRevisions) {
-        Document expectedDocument = new Document();
-        expectedDocument.setDocumentName(documentName);
-        for (Content revision : expectedRevisions) {
-            expectedDocument.addContent(revision);
-        }
-        return expectedDocument;
-    }
-
-    public static Content getAnonymousContent() {
-        return getExpectedContent((long) getUniqueNumber(), getRandomString(10), getRandomString(10), getRandomString(10));
-    }
-
-    public static Content getExpectedContent(Long contentId, String contentBody, String comment, String contributor) {
-        Content expectedContent = new Content();
-        expectedContent.setContentId(contentId);
-        expectedContent.setContentBody(contentBody);
-        expectedContent.setComment(comment);
-        expectedContent.setContributor(contributor);
-        return expectedContent;
-    }
-
-    public static Content getExpectedContent(String contentBody, String comment, String contributor) {
-        return getExpectedContent((long) getUniqueNumber(), contentBody, comment, contributor);
-    }
-
     public static void assertDocumentEquals(Document expectedDocument, Document actualDocument) {
         assertEquals(expectedDocument.getDocumentName(), actualDocument.getDocumentName());
         assertRevisionsEquals(expectedDocument.getRevisions(), actualDocument.getRevisions());
@@ -70,21 +28,32 @@ public class TestUtil {
         assertEquals(expectedContent.getContentBody(), actualContent.getContentBody());
         assertEquals(expectedContent.getComment(), actualContent.getComment());
         assertEquals(expectedContent.getContributor(), actualContent.getContributor());
-        assertEquals(expectedContent.getCreateDate(), actualContent.getCreateDate());
+        assertLocalDateTimeEquals(expectedContent.getCreateDateTime(), actualContent.getCreateDateTime());
     }
 
-    public static void assertHistoryEquals(History expectedHistory, History actualHistory) {
-        List<Row> expectedHistoryRows = expectedHistory.getRows();
-        List<Row> actualHistoryRows = actualHistory.getRows();
-        assertEquals(expectedHistoryRows.size(), actualHistoryRows.size());
-        for (int i = 0; i < expectedHistoryRows.size(); i++) {
-            Row expectedHistoryRow = expectedHistoryRows.get(i);
-            Row actualHistoryRow = actualHistoryRows.get(i);
-            assertEquals(expectedHistoryRow.getRevisionIndex(), actualHistoryRow.getRevisionIndex());
-            assertEquals(expectedHistoryRow.getComment(), actualHistoryRow.getComment());
-            assertEquals(expectedHistoryRow.getContributor(), actualHistoryRow.getContributor());
-            assertEquals(expectedHistoryRow.getLength(), actualHistoryRow.getLength());
-            assertEquals(expectedHistoryRow.getCreateDate(), actualHistoryRow.getCreateDate());
+    public static void assertHistoryEquals(ArrayList<HashMap<String, Object>> expectedHistory, ArrayList<HashMap<String, Object>> actualHistory) {
+        assertEquals(expectedHistory.size(), actualHistory.size());
+        for (int i = 0; i < expectedHistory.size(); i++) {
+            assertHistoryRowEquals(expectedHistory.get(i), actualHistory.get(i));
         }
+    }
+
+    private static void assertHistoryRowEquals(HashMap<String, Object> expectedHistoryRow, HashMap<String, Object> actualHistoryRow) {
+        assertEquals(expectedHistoryRow.get("revisionIndex"), actualHistoryRow.get("revisionIndex"));
+        assertEquals(expectedHistoryRow.get("comment"), actualHistoryRow.get("comment"));
+        assertEquals(expectedHistoryRow.get("contributor"), actualHistoryRow.get("contributor"));
+        assertEquals(expectedHistoryRow.get("lengthDiffer"), actualHistoryRow.get("lengthDiffer"));
+        assertLocalDateTimeEquals((String) expectedHistoryRow.get("createDateTime"), (String) actualHistoryRow.get("createDateTime"));
+    }
+
+    private static void assertLocalDateTimeEquals(String expectedLocalDateTime, String actualLocalDateTime) {
+        assertLocalDateTimeEquals(LocalDateTime.parse(expectedLocalDateTime), LocalDateTime.parse(actualLocalDateTime));
+    }
+
+    private static void assertLocalDateTimeEquals(LocalDateTime expectedLocalDateTime, LocalDateTime actualLocalDateTime) {
+        LocalDateTime expectedLocalDateTimeMinus = expectedLocalDateTime.minusSeconds(1);
+        LocalDateTime expectedLocalDateTimePlus = expectedLocalDateTime.plusSeconds(1);
+        assertTrue(actualLocalDateTime.isAfter(expectedLocalDateTimeMinus));
+        assertTrue(actualLocalDateTime.isBefore(expectedLocalDateTimePlus));
     }
 }

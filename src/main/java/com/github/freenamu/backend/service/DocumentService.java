@@ -3,14 +3,11 @@ package com.github.freenamu.backend.service;
 import com.github.freenamu.backend.entity.Content;
 import com.github.freenamu.backend.entity.Document;
 import com.github.freenamu.backend.repository.DocumentRepository;
-import com.github.freenamu.backend.vo.History;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @Transactional
@@ -57,15 +54,25 @@ public class DocumentService {
         return null;
     }
 
-    public History getHistoryOfDocument(String documentName) {
+    public ArrayList<HashMap<String, Object>> getHistoryOfDocument(String documentName) {
         Optional<Document> optionalDocument = documentRepository.findById(documentName);
         if (optionalDocument.isPresent()) {
             Document document = optionalDocument.get();
             List<Content> revisions = document.getRevisions();
-            History result = new History();
+            ArrayList<HashMap<String, Object>> result = new ArrayList<>();
+            int revisionIndex = 1;
+            int previousLength = 0;
             for (Content content : revisions) {
-                result.add(content);
+                HashMap<String, Object> historyRow = new HashMap<>();
+                historyRow.put("revisionIndex", revisionIndex++);
+                historyRow.put("comment", content.getComment());
+                historyRow.put("contributor", content.getContributor());
+                historyRow.put("lengthDiffer", content.getContentBody().length() - previousLength);
+                historyRow.put("createDateTime", content.getCreateDateTime());
+                previousLength = content.getContentBody().length();
+                result.add(historyRow);
             }
+            Collections.reverse(result);
             return result;
         }
         return null;
