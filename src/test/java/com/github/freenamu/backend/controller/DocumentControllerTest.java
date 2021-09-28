@@ -2,7 +2,6 @@ package com.github.freenamu.backend.controller;
 
 import com.github.freenamu.backend.entity.Content;
 import com.github.freenamu.backend.service.DocumentService;
-import com.github.freenamu.backend.vo.History;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -12,7 +11,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 import static com.github.freenamu.backend.TestUtil.*;
-import static com.github.freenamu.backend.vo.History.Row;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
@@ -49,6 +47,7 @@ class DocumentControllerTest {
 
         // Then
         resultActions.andExpect(status().isOk());
+        verify(documentService).postDocument(eq(documentName), eq(contentBody), eq(comment), anyString());
     }
 
     @Test
@@ -63,6 +62,7 @@ class DocumentControllerTest {
 
         // Then
         resultActions.andExpect(status().isBadRequest());
+        verifyNoInteractions(documentService);
     }
 
     @Test
@@ -86,7 +86,7 @@ class DocumentControllerTest {
         String documentName = getRandomString();
         String contentBody = getRandomString();
         String comment = getRandomString(256);
-        doThrow(new IllegalArgumentException()).when(documentService).postDocument(anyString(), anyString(), anyString(), anyString());
+        doThrow(new IllegalArgumentException()).when(documentService).postDocument(eq(documentName), eq(contentBody), eq(comment), anyString());
 
         // When
         ResultActions resultActions = mockMvc.perform(post(postDocumentURLTemplate, documentName)
@@ -163,7 +163,7 @@ class DocumentControllerTest {
         resultActions.andExpect(status().isNotFound());
     }
 
-    @Test
+    /*@Test
     void returnHistoryOfDocumentWhenGetHistoryOfDocumentWithFullValidInput() throws Exception {
         // Given
         String documentName = getRandomString();
@@ -187,7 +187,7 @@ class DocumentControllerTest {
             resultActions.andExpect(jsonPath("rows[" + i + "].length").value(expectedRow.getLength()));
             resultActions.andExpect(jsonPath("rows[" + i + "].createDate").value(expectedRow.getCreateDate()));
         }
-    }
+    }*/
 
     @Test
     void returnNotFoundWhenGetHistoryOfDocumentDocumentWithNotExistDocument() throws Exception {

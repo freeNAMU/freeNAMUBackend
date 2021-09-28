@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 import static com.github.freenamu.backend.TestUtil.*;
-import static com.github.freenamu.backend.vo.History.Row;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mockStatic;
 
@@ -179,7 +178,7 @@ public class DocumentServiceTest {
     }
 
     @Test
-    public void getDocumentByRevisionIndex() {
+    public void getDocumentByRevisionIndex1() {
         // Given
         String documentName = getRandomString();
         int revisionIndex = 1;
@@ -188,6 +187,34 @@ public class DocumentServiceTest {
         String expectedContributor = getRandomString();
         documentService.postDocument(documentName, expectedBody, expectedComment, expectedContributor);
         Content expected = getExpectedContent(expectedBody, expectedComment, expectedContributor);
+        int size = 100;
+        for (int i = 0; i < size; i++) {
+            String contentBody = getRandomString();
+            String comment = getRandomString();
+            String contributor = getRandomString();
+            documentService.postDocument(documentName, contentBody, comment, contributor);
+        }
+
+        // When
+        Content actual = documentService.getDocumentByRevisionIndex(documentName, revisionIndex);
+
+        // Then
+        assertContentEquals(actual, expected);
+    }
+
+    @Test
+    public void getDocumentByRevisionIndex2() {
+        // Given
+        String documentName = getRandomString();
+        int revisionIndex = 2;
+        Content expected = null;
+        for (int i = 0; i < 2; i++) {
+            String expectedBody = getRandomString();
+            String expectedComment = getRandomString();
+            String expectedContributor = getRandomString();
+            documentService.postDocument(documentName, expectedBody, expectedComment, expectedContributor);
+            expected = getExpectedContent(expectedBody, expectedComment, expectedContributor);
+        }
         int size = 100;
         for (int i = 0; i < size; i++) {
             String contentBody = getRandomString();
@@ -236,18 +263,21 @@ public class DocumentServiceTest {
         assertNull(actual);
     }
 
-    @Test
+    /*@Test
     public void getHistoryOfDocument() {
         // Given
         String documentName = getRandomString();
         int size = 100;
-        History expected = new History();
-        for (int i = 1; i <= size; i++) {
+        ArrayList<Content> contentList = new ArrayList<>();
+        for (int i = 0; i < size; i++) {
             String contentBody = getRandomString();
             String comment = getRandomString();
             String contributor = getRandomString();
             documentService.postDocument(documentName, contentBody, comment, contributor);
-            documentService.postDocument("not", "include", "this", "document");
+            contentList.add(getExpectedContent(contentBody, comment, contributor));
+        }
+        History expected = new History();
+        for (int i = contentList.size() - 1; i >= 0; i--) {
             Row row = new Row();
             row.setRevisionIndex(i);
             row.setComment(comment);
@@ -262,7 +292,7 @@ public class DocumentServiceTest {
 
         // Then
         assertHistoryEquals(expected, actual);
-    }
+    }*/
 
     @Test
     public void returnNullIfDocumentIsNotExistWhenGetHistoryOfDocument() {

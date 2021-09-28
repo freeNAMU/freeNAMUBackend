@@ -2,7 +2,6 @@ package com.github.freenamu.backend.vo;
 
 import com.github.freenamu.backend.entity.Content;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
