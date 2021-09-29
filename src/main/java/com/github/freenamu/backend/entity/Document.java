@@ -14,6 +14,7 @@ public class Document {
     private List<Content> revisions;
 
     public Document(String documentName, List<Content> revisions) {
+        this();
         this.documentName = documentName;
         this.revisions = revisions;
     }

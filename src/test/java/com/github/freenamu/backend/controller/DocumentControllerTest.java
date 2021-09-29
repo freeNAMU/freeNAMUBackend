@@ -37,7 +37,7 @@ class DocumentControllerTest {
     private DocumentService documentService;
 
     @Test
-    void returnOKWhenPostDocumentWithFullValidInput() throws Exception {
+    public void returnOKWhenPostDocumentWithFullValidInput() throws Exception {
         // Given
         String documentName = "anonymous name";
         String contentBody = "anonymous body";
@@ -54,7 +54,7 @@ class DocumentControllerTest {
     }
 
     @Test
-    void returnBadRequestWhenPostDocumentWithoutContentBody() throws Exception {
+    public void returnBadRequestWhenPostDocumentWithoutContentBody() throws Exception {
         // Given
         String documentName = "anonymous name";
         String comment = "anonymous comment";
@@ -69,7 +69,7 @@ class DocumentControllerTest {
     }
 
     @Test
-    void returnOKWhenPostDocumentWithoutComment() throws Exception {
+    public void returnOKWhenPostDocumentWithoutComment() throws Exception {
         // Given
         String documentName = "anonymous name";
         String contentBody = "anonymous comment";
@@ -84,7 +84,7 @@ class DocumentControllerTest {
     }
 
     @Test
-    void returnBadRequestWhenPostDocumentWithLongComment() throws Exception {
+    public void returnBadRequestWhenPostDocumentWithLongComment() throws Exception {
         // Given
         String documentName = "anonymous name";
         String contentBody = "anonymous body";
@@ -101,7 +101,7 @@ class DocumentControllerTest {
     }
 
     @Test
-    void returnLatestDocumentWhenGetLatestDocumentWithFullValidInput() throws Exception {
+    public void returnLatestDocumentWhenGetLatestDocumentWithFullValidInput() throws Exception {
         // Given
         String documentName = "anonymous name";
         Content expectedContent = new Content("anonymous body", "anonymous comment", "anonymous contributor");
@@ -121,7 +121,7 @@ class DocumentControllerTest {
     }
 
     @Test
-    void returnNotFoundWhenGetLatestDocumentWithNotExistDocument() throws Exception {
+    public void returnNotFoundWhenGetLatestDocumentWithNotExistDocument() throws Exception {
         // Given
         String documentName = "anonymous name";
         given(documentService.getLatestDocument(documentName)).willReturn(null);
@@ -134,7 +134,7 @@ class DocumentControllerTest {
     }
 
     @Test
-    void returnDocumentWhenGetDocumentByRevisionIndexWithFullValidInput() throws Exception {
+    public void returnDocumentWhenGetDocumentByRevisionIndexWithFullValidInput() throws Exception {
         // Given
         String documentName = "anonymous name";
         int revisionIndex = 1;
@@ -154,7 +154,7 @@ class DocumentControllerTest {
     }
 
     @Test
-    void returnNotFoundWhenGetDocumentByRevisionIndexWithNotExistDocument() throws Exception {
+    public void returnNotFoundWhenGetDocumentByRevisionIndexWithNotExistDocument() throws Exception {
         // Given
         String documentName = "anonymous name";
         int revisionIndex = 1;
@@ -168,7 +168,7 @@ class DocumentControllerTest {
     }
 
     @Test
-    void returnHistoryOfDocumentWhenGetHistoryOfDocumentWithFullValidInput() throws Exception {
+    public void returnHistoryOfDocumentWhenGetHistoryOfDocumentWithFullValidInput() throws Exception {
         // Given
         String documentName = "anonymous name";
         int size = 10;
@@ -200,7 +200,7 @@ class DocumentControllerTest {
     }
 
     @Test
-    void returnNotFoundWhenGetHistoryOfDocumentDocumentWithNotExistDocument() throws Exception {
+    public void returnNotFoundWhenGetHistoryOfDocumentDocumentWithNotExistDocument() throws Exception {
         // Given
         String documentName = "anonymous name";
         given(documentService.getHistoryOfDocument(documentName)).willReturn(null);
