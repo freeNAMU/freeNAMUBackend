@@ -8,14 +8,18 @@
         <version>2.5.4</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.github.freeNAMU</groupId>
-    <artifactId>freeNAMUBackend</artifactId>
+    <groupId>com.github.freenamu</groupId>
+    <artifactId>freenamu-backend</artifactId>
     <version>0.1.0</version>
     <name>freeNAMUBackend</name>
     <description>A backend of freeNAMU based on Spring Boot</description>
-    <properties>
-        <java.version>11</java.version>
-    </properties>
+    <licenses>
+        <license>
+            <name>GNU AFFERO GENERAL PUBLIC LICENSE, Version 3 (AGPL-3.0)</name>
+            <url>http://opensource.org/licenses/AGPL-3.0</url>
+        </license>
+    </licenses>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -41,12 +45,27 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+    <properties>
+        <java.version>11</java.version>
+    </properties>
 
     <build>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
