@@ -3,7 +3,11 @@ package com.github.freenamu.backend.service;
 import com.github.freenamu.backend.entity.Content;
 import com.github.freenamu.backend.entity.Document;
 import com.github.freenamu.backend.repository.DocumentRepository;
+import com.github.freenamu.node.Node;
+import com.github.freenamu.parser.FreeNAMUParser;
+import com.github.freenamu.renderer.FreeNAMURenderer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -76,5 +80,11 @@ public class DocumentService {
             return result;
         }
         return null;
+    }
+
+    @Cacheable("RenderedContent")
+    public String renderContent(String contentBody) {
+        List<Node> article = new FreeNAMUParser().parse(contentBody);
+        return new FreeNAMURenderer().render(article);
     }
 }

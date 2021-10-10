@@ -25,8 +25,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 class DocumentControllerTest {
-    private final String getLatestDocumentURLTemplate = "/api/document/{documentName}/latest/raw";
-    private final String getDocumentByRevisionIndexURLTemplate = "/api/document/{documentName}/{revisionIndex}/raw";
+    private final String getLatestDocumentURLTemplate = "/api/document/{documentName}/latest/{output}";
+    private final String getDocumentByRevisionIndexURLTemplate = "/api/document/{documentName}/{revisionIndex}/{output}";
     private final String getHistoryOfDocumentURLTemplate = "/api/document/{documentName}/history";
     private final String postDocumentURLTemplate = "/api/document/{documentName}";
 
@@ -109,9 +109,30 @@ class DocumentControllerTest {
         given(documentService.getLatestDocument(documentName)).willReturn(expectedContent);
 
         // When
-        ResultActions resultActions = mockMvc.perform(get(getLatestDocumentURLTemplate, documentName));
+        ResultActions resultActions = mockMvc.perform(get(getLatestDocumentURLTemplate, documentName, "render"));
 
         // Then
+        resultActions.andExpect(status().isOk());
+        resultActions.andExpect(jsonPath("contentId").value(expectedContent.getContentId()));
+        resultActions.andExpect(jsonPath("contentBody").value(expectedContent.getContentBody()));
+        resultActions.andExpect(jsonPath("comment").value(expectedContent.getComment()));
+        resultActions.andExpect(jsonPath("contributor").value(expectedContent.getContributor()));
+        resultActions.andExpect(jsonPath("createDateTime").value(expectedContent.getCreateDateTime()));
+    }
+
+    @Test
+    public void returnLatestRawDocumentWhenGetLatestDocumentWithFullValidInput() throws Exception {
+        // Given
+        String documentName = "anonymous name";
+        Content expectedContent = new Content("anonymous body", "anonymous comment", "anonymous contributor");
+        expectedContent.setContentId(1L);
+        given(documentService.getLatestDocument(documentName)).willReturn(expectedContent);
+
+        // When
+        ResultActions resultActions = mockMvc.perform(get(getLatestDocumentURLTemplate, documentName, "raw"));
+
+        // Then
+        verify(documentService, never()).renderContent(expectedContent.getContentBody());
         resultActions.andExpect(status().isOk());
         resultActions.andExpect(jsonPath("contentId").value(expectedContent.getContentId()));
         resultActions.andExpect(jsonPath("contentBody").value(expectedContent.getContentBody()));
@@ -127,10 +148,25 @@ class DocumentControllerTest {
         given(documentService.getLatestDocument(documentName)).willReturn(null);
 
         // When
-        ResultActions resultActions = mockMvc.perform(get(getLatestDocumentURLTemplate, documentName));
+        ResultActions resultActions = mockMvc.perform(get(getLatestDocumentURLTemplate, documentName, "render"));
 
         // Then
         resultActions.andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void returnBadRequestWhenGetLatestDocumentWithInvalidOutput() throws Exception {
+        // Given
+        String documentName = "anonymous name";
+        Content expectedContent = new Content("anonymous body", "anonymous comment", "anonymous contributor");
+        expectedContent.setContentId(1L);
+        given(documentService.getLatestDocument(documentName)).willReturn(expectedContent);
+
+        // When
+        ResultActions resultActions = mockMvc.perform(get(getLatestDocumentURLTemplate, documentName, "invalid option"));
+
+        // Then
+        resultActions.andExpect(status().isBadRequest());
     }
 
     @Test
@@ -142,9 +178,30 @@ class DocumentControllerTest {
         given(documentService.getDocumentByRevisionIndex(documentName, revisionIndex)).willReturn(expectedContent);
 
         // When
-        ResultActions resultActions = mockMvc.perform(get(getDocumentByRevisionIndexURLTemplate, documentName, revisionIndex));
+        ResultActions resultActions = mockMvc.perform(get(getDocumentByRevisionIndexURLTemplate, documentName, revisionIndex, "render"));
 
         // Then
+        resultActions.andExpect(status().isOk());
+        resultActions.andExpect(jsonPath("contentId").value(expectedContent.getContentId()));
+        resultActions.andExpect(jsonPath("contentBody").value(expectedContent.getContentBody()));
+        resultActions.andExpect(jsonPath("comment").value(expectedContent.getComment()));
+        resultActions.andExpect(jsonPath("contributor").value(expectedContent.getContributor()));
+        resultActions.andExpect(jsonPath("createDateTime").value(expectedContent.getCreateDateTime()));
+    }
+
+    @Test
+    public void returnRawDocumentWhenGetDocumentByRevisionIndexWithFullValidInput() throws Exception {
+        // Given
+        String documentName = "anonymous name";
+        int revisionIndex = 1;
+        Content expectedContent = new Content("anonymous body", "anonymous comment", "anonymous contributor");
+        given(documentService.getDocumentByRevisionIndex(documentName, revisionIndex)).willReturn(expectedContent);
+
+        // When
+        ResultActions resultActions = mockMvc.perform(get(getDocumentByRevisionIndexURLTemplate, documentName, revisionIndex, "raw"));
+
+        // Then
+        verify(documentService, never()).renderContent(expectedContent.getContentBody());
         resultActions.andExpect(status().isOk());
         resultActions.andExpect(jsonPath("contentId").value(expectedContent.getContentId()));
         resultActions.andExpect(jsonPath("contentBody").value(expectedContent.getContentBody()));
@@ -161,10 +218,25 @@ class DocumentControllerTest {
         given(documentService.getDocumentByRevisionIndex(documentName, revisionIndex)).willReturn(null);
 
         // When
-        ResultActions resultActions = mockMvc.perform(get(getDocumentByRevisionIndexURLTemplate, documentName, revisionIndex));
+        ResultActions resultActions = mockMvc.perform(get(getDocumentByRevisionIndexURLTemplate, documentName, revisionIndex, "render"));
 
         // Then
         resultActions.andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void returnBadRequestWhenGetDocumentByRevisionIndexWithInvalidOutput() throws Exception {
+        // Given
+        String documentName = "anonymous name";
+        int revisionIndex = 1;
+        Content expectedContent = new Content("anonymous body", "anonymous comment", "anonymous contributor");
+        given(documentService.getDocumentByRevisionIndex(documentName, revisionIndex)).willReturn(expectedContent);
+
+        // When
+        ResultActions resultActions = mockMvc.perform(get(getDocumentByRevisionIndexURLTemplate, documentName, revisionIndex, "invalid option"));
+
+        // Then
+        resultActions.andExpect(status().isBadRequest());
     }
 
     @Test
