@@ -1,5 +1,5 @@
 /.idea/
 /target
-/freeNAMUBackend.iml
+/*.iml
 /test.mv.db
 /test.trace.db
