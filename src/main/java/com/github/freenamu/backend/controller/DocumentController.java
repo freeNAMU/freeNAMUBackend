@@ -5,9 +5,14 @@ import com.github.freenamu.backend.service.DocumentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.util.UriUtils;
 
 import javax.servlet.http.HttpServletRequest;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -16,44 +21,44 @@ public class DocumentController {
     @Autowired
     private DocumentService documentService;
 
-    @GetMapping("/api/document/{documentName}/latest/{output}")
-    public ResponseEntity<Content> getLatestDocument(@PathVariable String documentName, @PathVariable(required = false) String output) {
-        if (!output.equals("raw") && (!output.equals("render"))) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    @GetMapping("/api/document/raw/**")
+    public ResponseEntity<Content> getRawDocument(HttpServletRequest request, @RequestParam(required = false) Integer rev) {
+        String documentName = getDocumentName(request);
+        Content content;
+        if (rev == null) {
+            content = documentService.getLatestDocument(documentName);
+        } else {
+            content = documentService.getDocumentByRevisionIndex(documentName, rev);
         }
-        Content content = documentService.getLatestDocument(documentName);
         if (content == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } else {
-            if (output.equals("render")) {
-                String rawContentBody = content.getContentBody();
-                String renderedContentBody = documentService.renderContent(rawContentBody);
-                content.setContentBody(renderedContentBody);
-            }
             return new ResponseEntity<>(content, HttpStatus.OK);
         }
     }
 
-    @GetMapping("/api/document/{documentName}/{revisionIndex}/{output}")
-    public ResponseEntity<Content> getDocument(@PathVariable String documentName, @PathVariable int revisionIndex, @PathVariable(required = false) String output) {
-        if (!output.equals("raw") && (!output.equals("render"))) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    @GetMapping("/api/document/render/**")
+    public ResponseEntity<Content> getRenderedDocument(HttpServletRequest request, @RequestParam(required = false) Integer rev) {
+        String documentName = getDocumentName(request);
+        Content content;
+        if (rev == null) {
+            content = documentService.getLatestDocument(documentName);
+        } else {
+            content = documentService.getDocumentByRevisionIndex(documentName, rev);
         }
-        Content content = documentService.getDocumentByRevisionIndex(documentName, revisionIndex);
         if (content == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } else {
-            if (output.equals("render")) {
-                String rawContentBody = content.getContentBody();
-                String renderedContentBody = documentService.renderContent(rawContentBody);
-                content.setContentBody(renderedContentBody);
-            }
+            String rawContentBody = content.getContentBody();
+            String renderedContentBody = documentService.renderContent(rawContentBody);
+            content.setContentBody(renderedContentBody);
             return new ResponseEntity<>(content, HttpStatus.OK);
         }
     }
 
-    @GetMapping("/api/document/{documentName}/history")
-    public ResponseEntity<ArrayList<HashMap<String, Object>>> getHistoryOfDocument(@PathVariable String documentName) {
+    @GetMapping("/api/document/history/**")
+    public ResponseEntity<ArrayList<HashMap<String, Object>>> getHistoryOfDocument(HttpServletRequest request) {
+        String documentName = getDocumentName(request);
         ArrayList<HashMap<String, Object>> history = documentService.getHistoryOfDocument(documentName);
         if (history == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -62,8 +67,9 @@ public class DocumentController {
         }
     }
 
-    @PostMapping("/api/document/{documentName}")
-    public ResponseEntity<Void> PostDocument(@PathVariable String documentName, @RequestParam String contentBody, @RequestParam(defaultValue = "") String comment, HttpServletRequest request) {
+    @PostMapping("/api/document/raw/**")
+    public ResponseEntity<Void> PostDocument(HttpServletRequest request, @RequestParam String contentBody, @RequestParam(defaultValue = "") String comment) {
+        String documentName = getDocumentName(request);
         try {
             documentService.postDocument(documentName, contentBody, comment, request.getRemoteAddr());
         } catch (IllegalArgumentException e) {
@@ -71,5 +77,14 @@ public class DocumentController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    private String getDocumentName(HttpServletRequest request) {
+        String encodedDocumentName = request.getRequestURI();
+        for (int i = 0; i < 3; i++) {
+            encodedDocumentName = encodedDocumentName.replaceFirst("/", "");
+        }
+        encodedDocumentName = encodedDocumentName.substring(encodedDocumentName.indexOf('/') + 1);
+        return UriUtils.decode(encodedDocumentName, StandardCharsets.UTF_8);
     }
 }
