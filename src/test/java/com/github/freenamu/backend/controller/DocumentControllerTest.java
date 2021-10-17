@@ -2,6 +2,7 @@ package com.github.freenamu.backend.controller;
 
 import com.github.freenamu.backend.entity.Content;
 import com.github.freenamu.backend.service.DocumentService;
+import com.github.freenamu.backend.service.NamuMarkService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -37,8 +38,11 @@ class DocumentControllerTest {
     @MockBean
     private DocumentService documentService;
 
+    @MockBean
+    private NamuMarkService namuMarkService;
+
     @Test
-    public void return_ok_when_post_document_with_full_valid_input() throws Exception {
+    public void should_return_ok_when_post_document_with_full_valid_input() throws Exception {
         // Given
         String documentName = "anonymous name";
         String contentBody = "anonymous body";
@@ -55,7 +59,7 @@ class DocumentControllerTest {
     }
 
     @Test
-    public void return_bad_request_when_post_document_without_content_body() throws Exception {
+    public void should_return_bad_request_when_post_document_without_content_body() throws Exception {
         // Given
         String documentName = "anonymous name";
         String comment = "anonymous comment";
@@ -70,7 +74,7 @@ class DocumentControllerTest {
     }
 
     @Test
-    public void return_ok_when_post_document_without_comment() throws Exception {
+    public void should_return_ok_when_post_document_without_comment() throws Exception {
         // Given
         String documentName = "anonymous name";
         String contentBody = "anonymous comment";
@@ -85,7 +89,7 @@ class DocumentControllerTest {
     }
 
     @Test
-    public void return_bad_request_when_post_document_with_long_comment() throws Exception {
+    public void should_return_bad_request_when_post_document_with_long_comment() throws Exception {
         // Given
         String documentName = "anonymous name";
         String contentBody = "anonymous body";
@@ -102,7 +106,7 @@ class DocumentControllerTest {
     }
 
     @Test
-    public void return_ok_when_post_document_with_document_name_containing_slash() throws Exception {
+    public void should_return_ok_when_post_document_with_document_name_containing_slash() throws Exception {
         // Given
         String documentName = "anonymous/name";
         String contentBody = "anonymous body";
@@ -119,7 +123,7 @@ class DocumentControllerTest {
     }
 
     @Test
-    public void return_latest_raw_document_when_get_raw_document_without_revision_index() throws Exception {
+    public void should_return_latest_raw_document_when_get_raw_document_without_revision_index() throws Exception {
         // Given
         String documentName = "anonymous name";
         Content expectedContent = new Content("anonymous body", "anonymous comment", "anonymous contributor");
@@ -130,7 +134,7 @@ class DocumentControllerTest {
         ResultActions resultActions = mockMvc.perform(get(getRawDocumentURLTemplate, documentName));
 
         // Then
-        verify(documentService, never()).renderContent(expectedContent.getContentBody());
+        verify(namuMarkService, never()).renderContent(expectedContent.getContentBody());
         resultActions.andExpect(status().isOk());
         resultActions.andExpect(jsonPath("contentId").value(expectedContent.getContentId()));
         resultActions.andExpect(jsonPath("contentBody").value(expectedContent.getContentBody()));
@@ -140,7 +144,7 @@ class DocumentControllerTest {
     }
 
     @Test
-    public void return_latest_raw_document_when_get_raw_document_with_document_name_containing_slash() throws Exception {
+    public void should_return_latest_raw_document_when_get_raw_document_with_document_name_containing_slash() throws Exception {
         // Given
         String documentName = "anonymous/name";
         Content expectedContent = new Content("anonymous body", "anonymous comment", "anonymous contributor");
@@ -151,7 +155,7 @@ class DocumentControllerTest {
         ResultActions resultActions = mockMvc.perform(get(getRawDocumentURLTemplate, documentName));
 
         // Then
-        verify(documentService, never()).renderContent(expectedContent.getContentBody());
+        verify(namuMarkService, never()).renderContent(expectedContent.getContentBody());
         resultActions.andExpect(status().isOk());
         resultActions.andExpect(jsonPath("contentId").value(expectedContent.getContentId()));
         resultActions.andExpect(jsonPath("contentBody").value(expectedContent.getContentBody()));
@@ -161,7 +165,7 @@ class DocumentControllerTest {
     }
 
     @Test
-    public void return_not_found_when_get_raw_document_with_not_exist_document() throws Exception {
+    public void should_return_not_found_when_get_raw_document_with_not_exist_document() throws Exception {
         // Given
         String documentName = "anonymous name";
         given(documentService.getLatestDocument(documentName)).willReturn(null);
@@ -174,7 +178,7 @@ class DocumentControllerTest {
     }
 
     @Test
-    public void return_document_when_get_raw_document_with_revision_index() throws Exception {
+    public void should_return_document_when_get_raw_document_with_revision_index() throws Exception {
         // Given
         String documentName = "anonymous name";
         int revisionIndex = 1;
@@ -187,7 +191,7 @@ class DocumentControllerTest {
         ResultActions resultActions = mockMvc.perform(requestBuilder);
 
         // Then
-        verify(documentService, never()).renderContent(expectedContent.getContentBody());
+        verify(namuMarkService, never()).renderContent(expectedContent.getContentBody());
         resultActions.andExpect(status().isOk());
         resultActions.andExpect(jsonPath("contentId").value(expectedContent.getContentId()));
         resultActions.andExpect(jsonPath("contentBody").value(expectedContent.getContentBody()));
@@ -197,7 +201,7 @@ class DocumentControllerTest {
     }
 
     @Test
-    public void return_not_found_when_get_raw_document_with_not_exist_revision_index() throws Exception {
+    public void should_return_not_found_when_get_raw_document_with_not_exist_revision_index() throws Exception {
         // Given
         String documentName = "anonymous name";
         int revisionIndex = 1;
@@ -213,19 +217,20 @@ class DocumentControllerTest {
     }
 
     @Test
-    public void return_latest_rendered_document_when_get_rendered_document_without_revision_index() throws Exception {
+    public void should_return_latest_rendered_document_when_get_rendered_document_without_revision_index() throws Exception {
         // Given
         String documentName = "anonymous name";
         String expectedContentBody = "anonymous body";
         Content expectedContent = new Content(expectedContentBody, "anonymous comment", "anonymous contributor");
         expectedContent.setContentId(1L);
         given(documentService.getLatestDocument(documentName)).willReturn(expectedContent);
+        given(namuMarkService.renderContent(expectedContentBody)).willReturn(expectedContentBody);
 
         // When
         ResultActions resultActions = mockMvc.perform(get(getRenderedDocumentURLTemplate, documentName));
 
         // Then
-        verify(documentService, times(1)).renderContent(expectedContentBody);
+        verify(namuMarkService, times(1)).renderContent(expectedContentBody);
         resultActions.andExpect(status().isOk());
         resultActions.andExpect(jsonPath("contentId").value(expectedContent.getContentId()));
         resultActions.andExpect(jsonPath("contentBody").value(expectedContent.getContentBody()));
@@ -235,19 +240,20 @@ class DocumentControllerTest {
     }
 
     @Test
-    public void return_latest_rendered_document_when_get_rendered_document_with_document_name_containing_slash() throws Exception {
+    public void should_return_latest_rendered_document_when_get_rendered_document_with_document_name_containing_slash() throws Exception {
         // Given
         String documentName = "anonymous/name";
         String expectedContentBody = "anonymous body";
         Content expectedContent = new Content(expectedContentBody, "anonymous comment", "anonymous contributor");
         expectedContent.setContentId(1L);
         given(documentService.getLatestDocument(documentName)).willReturn(expectedContent);
+        given(namuMarkService.renderContent(expectedContentBody)).willReturn(expectedContentBody);
 
         // When
         ResultActions resultActions = mockMvc.perform(get(getRenderedDocumentURLTemplate, documentName));
 
         // Then
-        verify(documentService, times(1)).renderContent(expectedContentBody);
+        verify(namuMarkService, times(1)).renderContent(expectedContentBody);
         resultActions.andExpect(status().isOk());
         resultActions.andExpect(jsonPath("contentId").value(expectedContent.getContentId()));
         resultActions.andExpect(jsonPath("contentBody").value(expectedContent.getContentBody()));
@@ -257,7 +263,7 @@ class DocumentControllerTest {
     }
 
     @Test
-    public void return_not_found_when_get_render_document_with_not_exist_document() throws Exception {
+    public void should_return_not_found_when_get_render_document_with_not_exist_document() throws Exception {
         // Given
         String documentName = "anonymous name";
         given(documentService.getLatestDocument(documentName)).willReturn(null);
@@ -270,13 +276,14 @@ class DocumentControllerTest {
     }
 
     @Test
-    public void return_document_when_get_render_document_with_revision_index() throws Exception {
+    public void should_return_document_when_get_render_document_with_revision_index() throws Exception {
         // Given
         String documentName = "anonymous name";
         int revisionIndex = 1;
         String expectedContentBody = "anonymous body";
         Content expectedContent = new Content(expectedContentBody, "anonymous comment", "anonymous contributor");
         given(documentService.getDocumentByRevisionIndex(documentName, revisionIndex)).willReturn(expectedContent);
+        given(namuMarkService.renderContent(expectedContentBody)).willReturn(expectedContentBody);
 
         // When
         MockHttpServletRequestBuilder requestBuilder = get(getRenderedDocumentURLTemplate, documentName);
@@ -284,7 +291,7 @@ class DocumentControllerTest {
         ResultActions resultActions = mockMvc.perform(requestBuilder);
 
         // Then
-        verify(documentService, times(1)).renderContent(expectedContentBody);
+        verify(namuMarkService, times(1)).renderContent(expectedContentBody);
         resultActions.andExpect(status().isOk());
         resultActions.andExpect(jsonPath("contentId").value(expectedContent.getContentId()));
         resultActions.andExpect(jsonPath("contentBody").value(expectedContent.getContentBody()));
@@ -294,7 +301,7 @@ class DocumentControllerTest {
     }
 
     @Test
-    public void return_not_found_when_get_render_document_with_not_exist_revision_index() throws Exception {
+    public void should_return_not_found_when_get_render_document_with_not_exist_revision_index() throws Exception {
         // Given
         String documentName = "anonymous name";
         int revisionIndex = 1;
@@ -310,7 +317,31 @@ class DocumentControllerTest {
     }
 
     @Test
-    public void return_history_of_document_when_get_history_of_document_with_full_valid_input() throws Exception {
+    public void should_return_moved_permanently_when_get_rendered_document_with_redirect() throws Exception {
+        // Given
+        String documentName = "anonymous name";
+        String rawContentBody = "#redirect test";
+        String expectedContentBody = "test";
+        Content expectedContent = new Content(rawContentBody, "anonymous comment", "anonymous contributor");
+        expectedContent.setContentId(1L);
+        given(documentService.getLatestDocument(documentName)).willReturn(expectedContent);
+        given(namuMarkService.isRedirect(rawContentBody)).willReturn(true);
+        given(namuMarkService.getRedirectDocumentName(rawContentBody)).willReturn(expectedContentBody);
+
+        // When
+        ResultActions resultActions = mockMvc.perform(get(getRenderedDocumentURLTemplate, documentName));
+
+        // Then
+        resultActions.andExpect(status().isMovedPermanently());
+        resultActions.andExpect(jsonPath("contentId").value(expectedContent.getContentId()));
+        resultActions.andExpect(jsonPath("contentBody").value(expectedContentBody));
+        resultActions.andExpect(jsonPath("comment").value(expectedContent.getComment()));
+        resultActions.andExpect(jsonPath("contributor").value(expectedContent.getContributor()));
+        resultActions.andExpect(jsonPath("createDateTime").value(expectedContent.getCreateDateTime()));
+    }
+
+    @Test
+    public void should_return_history_of_document_when_get_history_of_document_with_full_valid_input() throws Exception {
         // Given
         String documentName = "anonymous name";
         int size = 10;
@@ -342,7 +373,7 @@ class DocumentControllerTest {
     }
 
     @Test
-    public void return_history_of_document_when_get_history_of_document_with_document_name_containing_slash() throws Exception {
+    public void should_return_history_of_document_when_get_history_of_document_with_document_name_containing_slash() throws Exception {
         // Given
         String documentName = "anonymous/name";
         int size = 10;
@@ -374,7 +405,7 @@ class DocumentControllerTest {
     }
 
     @Test
-    public void return_not_found_when_get_history_of_document_document_with_not_exist_document() throws Exception {
+    public void should_return_not_found_when_get_history_of_document_document_with_not_exist_document() throws Exception {
         // Given
         String documentName = "anonymous name";
         given(documentService.getHistoryOfDocument(documentName)).willReturn(null);

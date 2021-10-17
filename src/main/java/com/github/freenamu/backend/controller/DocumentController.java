@@ -2,6 +2,7 @@ package com.github.freenamu.backend.controller;
 
 import com.github.freenamu.backend.entity.Content;
 import com.github.freenamu.backend.service.DocumentService;
+import com.github.freenamu.backend.service.NamuMarkService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,8 @@ import java.util.HashMap;
 public class DocumentController {
     @Autowired
     private DocumentService documentService;
+    @Autowired
+    private NamuMarkService namuMarkService;
 
     @GetMapping("/api/document/raw/**")
     public ResponseEntity<Content> getRawDocument(HttpServletRequest request, @RequestParam(required = false) Integer rev) {
@@ -50,9 +53,14 @@ public class DocumentController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } else {
             String rawContentBody = content.getContentBody();
-            String renderedContentBody = documentService.renderContent(rawContentBody);
-            content.setContentBody(renderedContentBody);
-            return new ResponseEntity<>(content, HttpStatus.OK);
+            if (namuMarkService.isRedirect(rawContentBody)) {
+                content.setContentBody(namuMarkService.getRedirectDocumentName(rawContentBody));
+                return new ResponseEntity<>(content, HttpStatus.MOVED_PERMANENTLY);
+            } else {
+                String renderedContentBody = namuMarkService.renderContent(rawContentBody);
+                content.setContentBody(renderedContentBody);
+                return new ResponseEntity<>(content, HttpStatus.OK);
+            }
         }
     }
 

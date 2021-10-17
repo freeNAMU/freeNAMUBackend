@@ -1,5 +1,7 @@
 package com.github.freenamu.backend.entity;
 
+import com.github.freenamu.parser.grammar.RedirectGrammar;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
@@ -29,9 +31,9 @@ public class Content {
 
     public Content(String contentBody, String comment, String contributor) {
         this();
-        this.contributor = contributor;
-        this.contentBody = contentBody;
-        this.comment = comment;
+        setContentBody(contentBody);
+        setComment(comment);
+        setContributor(contributor);
     }
 
     public Long getContentId() {
@@ -63,6 +65,11 @@ public class Content {
     }
 
     public void setContentBody(String contentBody) {
+        contentBody = contentBody.replaceAll("\r\n", "\n");
+        RedirectGrammar redirectGrammar = new RedirectGrammar();
+        if (redirectGrammar.match(contentBody)) {
+            contentBody = contentBody.substring(redirectGrammar.getStart(), redirectGrammar.getEnd());
+        }
         this.contentBody = contentBody;
     }
 

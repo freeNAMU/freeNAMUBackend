@@ -14,9 +14,13 @@ public class Document {
     private List<Content> revisions;
 
     public Document(String documentName, List<Content> revisions) {
-        this();
-        this.documentName = documentName;
+        setDocumentName(documentName);
         this.revisions = revisions;
+    }
+
+    public Document(String documentName) {
+        setDocumentName(documentName);
+        this.revisions = new ArrayList<>();
     }
 
     public Document() {

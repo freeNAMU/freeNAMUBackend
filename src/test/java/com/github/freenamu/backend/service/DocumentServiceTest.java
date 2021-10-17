@@ -26,7 +26,7 @@ public class DocumentServiceTest {
     private DocumentRepository documentRepository;
 
     @Test
-    public void post_document_once() {
+    public void test_post_document_once() {
         // Given
         String documentName = "anonymous name";
         ArrayList<Content> expectedRevisions = new ArrayList<>();
@@ -48,7 +48,7 @@ public class DocumentServiceTest {
     }
 
     @Test
-    public void post_document_many() {
+    public void test_post_document_many() {
         // Given
         String documentName = "anonymous name";
         ArrayList<Content> expectedRevisions = new ArrayList<>();
@@ -71,7 +71,7 @@ public class DocumentServiceTest {
     }
 
     @Test
-    public void post_document_with_long_body() {
+    public void test_post_document_with_long_body() {
         // Given
         String documentName = "anonymous name";
         ArrayList<Content> expectedRevisions = new ArrayList<>();
@@ -93,7 +93,7 @@ public class DocumentServiceTest {
     }
 
     @Test
-    public void post_document_with_comment_length_less_than_256() {
+    public void test_post_document_with_comment_length_less_than_256() {
         // Given
         String documentName = "anonymous name";
         ArrayList<Content> expectedRevisions = new ArrayList<>();
@@ -115,7 +115,7 @@ public class DocumentServiceTest {
     }
 
     @Test
-    public void throw_exception_when_post_document_with_long_comment() {
+    public void should_throw_exception_when_post_document_with_long_comment() {
         // Given
         String documentName = "anonymous name";
         String contentBody = "anonymous body";
@@ -129,7 +129,7 @@ public class DocumentServiceTest {
     }
 
     @Test
-    public void get_latest_document() {
+    public void test_get_latest_document() {
         // Given
         String documentName = "anonymous name";
         String contentBody = "anonymous body";
@@ -149,7 +149,7 @@ public class DocumentServiceTest {
     }
 
     @Test
-    public void return_null_if_document_is_not_exist_when_get_latest_document() {
+    public void should_return_null_if_document_is_not_exist_when_get_latest_document() {
         // Given
         String documentName = "anonymous name";
 
@@ -161,7 +161,7 @@ public class DocumentServiceTest {
     }
 
     @Test
-    public void get_document_by_revision_index() {
+    public void should_get_document_by_revision_index() {
         // Given
         String documentName = "anonymous name";
         int revisionIndex = 1;
@@ -183,7 +183,7 @@ public class DocumentServiceTest {
     }
 
     @Test
-    public void return_null_if_out_of_range_when_get_document_by_revision_index_1() {
+    public void should_return_null_if_out_of_range_when_get_document_by_revision_index_1() {
         // Given
         String documentName = "anonymous name";
         int revisionIndex = 0;
@@ -203,7 +203,7 @@ public class DocumentServiceTest {
     }
 
     @Test
-    public void return_null_if_out_of_range_when_get_document_by_revision_index_2() {
+    public void should_return_null_if_out_of_range_when_get_document_by_revision_index_2() {
         // Given
         String documentName = "anonymous name";
         int revisionIndex = 101;
@@ -223,7 +223,7 @@ public class DocumentServiceTest {
     }
 
     @Test
-    public void return_null_if_out_of_range_when_get_document_by_revision_index_3() {
+    public void should_return_null_if_out_of_range_when_get_document_by_revision_index_3() {
         // Given
         String documentName = "anonymous name";
         int revisionIndex = -1;
@@ -243,7 +243,7 @@ public class DocumentServiceTest {
     }
 
     @Test
-    public void return_null_if_document_is_not_exist_when_get_document_by_revision_index() {
+    public void should_return_null_if_document_is_not_exist_when_get_document_by_revision_index() {
         // Given
         String documentName = "anonymous name";
         int revisionIndex = 1;
@@ -256,7 +256,7 @@ public class DocumentServiceTest {
     }
 
     @Test
-    public void get_history_of_document() {
+    public void test_get_history_of_document() {
         // Given
         String documentName = "anonymous name";
         int size = 100;
@@ -284,7 +284,7 @@ public class DocumentServiceTest {
     }
 
     @Test
-    public void return_null_if_document_is_not_exist_when_get_history_of_document() {
+    public void should_return_null_if_document_is_not_exist_when_get_history_of_document() {
         // Given
         String documentName = "anonymous name";
 
